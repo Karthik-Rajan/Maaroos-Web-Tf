@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from "react";
-import _ from "lodash";
 import { Row, Col, Container } from "react-bootstrap";
 import CategoriesCarousel from "./common/CategoriesCarousel";
 import ProductItems from "./common/ProductItems";
 import SideBarHead from "./common/SideBarHead";
 import SideBarFilter from "./common/SideBarFilter";
-import SearchBar from "./common/SearchBar";
 import { connect } from "react-redux";
+import { useLocation } from "react-router-dom";
 
 let input = {
   lat: 0,
@@ -14,6 +13,7 @@ let input = {
 };
 
 let location = {};
+let reload = 0;
 
 function List(props: any) {
   let [list, setList] = useState([]);
@@ -21,21 +21,55 @@ function List(props: any) {
   let [loading, setLoading] = useState(true);
   let [listCardClassName, setListCardClassName] = useState("productsListing");
   let [search, setSearch] = useState(input);
+
+  const loc = useLocation();
+
+  const callVendorList = async () => {
+    setLoading(true);
+
+    input = { ...search, ...input };
+
+    props.dispatch({
+      type: "LOCATION",
+      payload: { search: input, location },
+    });
+  };
+  const q: any = new URLSearchParams(loc.search).get("q");
+
   useEffect(() => {
     props.vendor
       .then((res: any) => {
+        console.log(res);
         setList(res.list);
         setLoading(false);
-        input = res.search;
         location = res.location;
-        setSearch({ ...input });
+        if (input.lat <= 0) {
+          console.log("setting", q);
+          setSearch({ ...input });
+        }
+        input = res.search;
       })
       .catch((err: any) => {
         console.log("Error on Listing Page", err);
         setList([]);
         setLoading(false);
       });
-  }, [props.vendor]);
+
+    if (typeof q != "undefined" && q) {
+      console.log(q);
+      const coOrds = q.split(",");
+      input = {
+        ...input,
+        lat: parseFloat(coOrds[0]),
+        lng: parseFloat(coOrds[1]),
+      };
+      setSearch(input);
+      callVendorList();
+      if (reload === 0) {
+        reload++;
+      }
+    }
+  }, [reload]);
 
   const onApplyFilter = () => {
     console.log("Filters", search);
@@ -46,21 +80,10 @@ function List(props: any) {
     setSearch({ ...search, ...params });
   };
 
-  const callVendorList = async () => {
-    setLoading(true);
-
-    input = { ...input, ...search };
-
-    props.dispatch({
-      type: "LOCATION",
-      payload: { search: input, location },
-    });
-  };
-
   const toggleSideBar = (value: boolean) => {
-    if (!sideBar == value) {
+    if (!sideBar === value) {
       setListCardClassName(
-        listCardClassName == "productsListing"
+        listCardClassName === "productsListing"
           ? "productsListingW75"
           : "productsListing"
       );

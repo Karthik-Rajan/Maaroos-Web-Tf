@@ -1,20 +1,13 @@
-import React, { useState, useRef, useEffect } from "react";
+import React from "react";
 import { Link } from "react-router-dom";
-import ForgotForm from "./ForgotForm";
-import {
-  Form,
-  InputGroup,
-  Modal,
-  ButtonToolbar,
-  Button,
-  Alert,
-  ToggleButton,
-  ToggleButtonGroup,
-} from "react-bootstrap";
+import OtpInput from "./OtpInput";
+import { Form, InputGroup, Button } from "react-bootstrap";
 import Icofont from "react-icofont";
+import ReCAPTCHA from "react-google-recaptcha";
 
 const SignUpForm = (props: any) => {
-  const errors = props.errors;
+  const onChange = (value: string) => props.setOtp(value);
+
   return (
     <>
       <Form
@@ -31,8 +24,7 @@ const SignUpForm = (props: any) => {
                 readOnly={props.mobileDisabled}
                 placeholder="+9190*****738"
                 {...props.register("signUpMobile", {
-                  required: true,
-                  mobile: true,
+                  required: `Mobile field is required`,
                 })}
               />
               <InputGroup.Append>
@@ -41,7 +33,7 @@ const SignUpForm = (props: any) => {
                   type="submit"
                   form="signUpForm"
                   id="button-addon2"
-                  disabled={props.otpBtn}
+                  disabled={!props.isHuman || props.otpBtn}
                 >
                   <Icofont icon="iphone" />
                   {/* {count ? "Resend in " + count + " secs" : " Send OTP"} */}
@@ -65,75 +57,64 @@ const SignUpForm = (props: any) => {
           </Form.Group>
 
           <Form.Group className="col-md-12">
-            <Form.Label>Password</Form.Label>
-            <Form.Control
-              type="password"
-              readOnly={props.mobileDisabled}
-              placeholder="Min 8 length"
-              {...props.register("signUpPassword", {
-                required: true,
-                pattern: /^[\S]+.*[\S]+$/,
-              })}
+            <Form.Label>Set Password</Form.Label>
+
+            <InputGroup>
+              <Form.Control
+                type={props.showPassword ? `text` : `password`}
+                readOnly={props.mobileDisabled}
+                placeholder="Min 8 length"
+                {...props.register("signUpPassword", {
+                  required: `Password field is required`,
+                  pattern: {
+                    value: /((?=.*\d)(?=.*[A-Z]|[a-z])(?=.*\W).{8,})/,
+                    message: `Password does not match pattern. Password must contain atleast one number(0-9), one lowercase(a-z), one uppercase(A-Z)`,
+                  },
+                  minLength: {
+                    value: 8,
+                    message: `Password should have minimum 8 length`,
+                  },
+                })}
+              />
+              <InputGroup.Append>
+                <Button
+                  variant="outline-secondary"
+                  type="button"
+                  id="showpasswordeye"
+                  onClick={() => {
+                    props.setShowPassword(!props.showPassword);
+                  }}
+                >
+                  <Icofont icon={!props.showPassword ? `eye` : `eye-blocked`} />{" "}
+                  {!props.showPassword ? `Show` : `Hide`}
+                  {/* {count ? "Resend in " + count + " secs" : " Send OTP"} */}
+                </Button>
+              </InputGroup.Append>
+            </InputGroup>
+          </Form.Group>
+
+          <Form.Group className="col-md-12">
+            <ReCAPTCHA
+              sitekey="6Le2eN0ZAAAAAKrQEbigFF2HPDH3sbqP2oIXCWUH"
+              onChange={props.captchOnChange}
+              onExpired={props.captchOnExpired}
             />
           </Form.Group>
+
           {props.showOtp && (
             <Form.Group className="col-md-12">
               <Form.Label>OTP</Form.Label>
               <InputGroup>
-                <Form.Control
-                  type="text"
-                  placeholder="2****7"
-                  {...props.register("signUpOtp", {
-                    min: 6,
-                    required: true,
-                  })}
+                <OtpInput
+                  value={props.otp}
+                  valueLength={6}
+                  onChange={onChange}
                 />
               </InputGroup>
             </Form.Group>
           )}
         </div>
       </Form>
-      {errors.signUpMobile || errors.signUpPassword || props.message ? (
-        <Alert
-          variant="danger"
-          dismissible
-          role="alert"
-          className=""
-          onClose={() => {
-            errors.signUpMobile = undefined;
-            errors.signUpPassword = undefined;
-            props.setMessage(null);
-          }}
-        >
-          Errors:
-          <ul>
-            {props.message && <li>{props.message}</li>}
-
-            {errors.signUpMobile && <li>Mobile number field is required</li>}
-
-            {errors.signUpPassword &&
-              (errors.signUpPassword.type == "required" ? (
-                <li>Password field is required</li>
-              ) : errors.signUpPassword.type == "pattern" ? (
-                <li>
-                  Password should :
-                  <br />
-                  1. Contains at least 1 number (0 to 9)
-                  <br />
-                  2. Contains at least 1 special character{" "}
-                  {`(^ $ * . [ ] { } ( ) ? - " ! @ # % & / \ , > < ' : ; | _ ~ ` +
-                    `+ =)`}
-                </li>
-              ) : errors.signUpPassword.type == "min" ? (
-                <li>Password field needs atleast 8 length</li>
-              ) : (
-                ""
-              ))}
-          </ul>
-        </Alert>
-      ) : (
-        ""
-      )}
     </>
   );
 };

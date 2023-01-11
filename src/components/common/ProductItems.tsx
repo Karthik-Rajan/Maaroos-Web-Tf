@@ -1,5 +1,5 @@
 import React from "react";
-import { Row, Col, Button, Spinner } from "react-bootstrap";
+import { Row, Col } from "react-bootstrap";
 import CardItem from "./CardItem";
 import { vendorListSkeleton } from "../skeletons";
 import { Image } from "react-bootstrap";

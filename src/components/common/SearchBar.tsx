@@ -34,10 +34,10 @@ const SearchBar = (props: any) => {
   });
 
   useEffect(() => {
-    if (window.location.pathname == "/listing") {
+    if (window.location.pathname === "/listing") {
       setPageUrl("");
     }
-    if (window.location.pathname == "/") {
+    if (window.location.pathname === "/") {
       setQuickSearch(false);
     }
     props.vendor.then((res: any) => {

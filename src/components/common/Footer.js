@@ -215,9 +215,9 @@ Footer.defaultProps = {
 	copyrightText: '© Copyright 2022 Maaroos. All Rights Reserved',
 	madewithIconclassName: 'heart heart-icon text-danger',
 	firstLinkText: '',
-	firstLink: "//www.instagram.com/iamgurdeeposahan/",
+	firstLink: "",
 	secondLinkText: 'Maaroos Team',
-	secondLink: 'https://www.maaroos.com',
+	secondLink: '/',
 }
 
 

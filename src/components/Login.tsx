@@ -1,15 +1,12 @@
 import React, { useState, useEffect } from "react";
 import Amplify from "@aws-amplify/core";
 import Auth from "@aws-amplify/auth";
-import { Link, Navigate, useNavigate } from "react-router-dom";
-import { Row, Col, Container, Form, Button } from "react-bootstrap";
-import FontAwesome from "./common/FontAwesome";
+import { Link, useNavigate } from "react-router-dom";
+import { Row, Col, Container, Form } from "react-bootstrap";
 import awsConfig from "../awsConfig";
 import LoginSlider from "../components/common/LoginSlider";
 
 import {
-  NOTSIGNIN,
-  SIGNEDIN,
   OTPSENT,
   NOUSER,
   WRONGOTP,
@@ -21,7 +18,6 @@ function Login() {
   Amplify.configure(awsConfig);
 
   const [message, setMessage] = useState("");
-  const [user, setUser] = useState(null);
   const [session, setSession] = useState(null);
   const [otp, setOtp] = useState("");
   const [number, setNumber] = useState("");
@@ -100,7 +96,6 @@ function Login() {
   const verifyOtp = () => {
     Auth.sendCustomChallengeAnswer(session, otp)
       .then((user) => {
-        setUser(user);
         setSession(null);
         navigate("/");
       })

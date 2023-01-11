@@ -1,23 +1,19 @@
 import React, { useState, useEffect } from "react";
-import { NavLink, Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import {
   Navbar,
   Nav,
   Container,
   NavDropdown,
   Image,
-  Badge,
   Alert,
 } from "react-bootstrap";
 import DropDownTitle from "./DropDownTitle";
-import CartDropdownHeader from "../cart/CartDropdownHeader";
-import CartDropdownItem from "../cart/CartDropdownItem";
 import Icofont from "react-icofont";
 import Amplify from "@aws-amplify/core";
 import Auth from "@aws-amplify/auth";
 import awsConfig from "../../awsConfig";
 import LoginModal from "../modals/LoginModal";
-import SearchBar from "./SearchBar";
 
 function Header(props: any) {
   Amplify.configure(awsConfig);

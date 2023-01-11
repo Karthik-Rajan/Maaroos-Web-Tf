@@ -22,7 +22,6 @@ import "font-awesome/css/font-awesome.min.css";
 import "react-select2-wrapper/css/select2.css";
 import "react-loading-skeleton/dist/skeleton.css";
 import "./App.css";
-import Auth from "@aws-amplify/auth";
 
 dotenv.config();
 function App() {

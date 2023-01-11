@@ -22,13 +22,6 @@ import Review from "./common/Review";
 import Icofont from "react-icofont";
 import { connect } from "react-redux";
 import { vendorDetailSkeleton } from "./skeletons";
-import {
-  EventApi,
-  DateSelectArg,
-  EventClickArg,
-  EventContentArg,
-  formatDate,
-} from "@fullcalendar/core";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
@@ -37,13 +30,12 @@ import interactionPlugin from "@fullcalendar/interaction";
 const Detail = ({ vendor, dispatch }: any) => {
   let { vId } = useParams();
 
-  const [showAddressModal, setShowAddressModal] = useState(false);
   const [detail, setDetail] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [calendarInput, setCalendarInput] = useState({});
 
   const reviewUser = [];
-  const [users, setUsers] = useState([]);
+  const [users] = useState([]);
 
   vendor.then((res: any) => {
     setDetail(res.detail);
@@ -61,7 +53,6 @@ const Detail = ({ vendor, dispatch }: any) => {
     dispatch({ type: "MY_CALENDAR", payload: { ...calendarInput, vId } });
   }, []);
 
-  const hideAddressModal = () => setShowAddressModal(false);
   const getQty = ({ id, quantity }: any) => {
     //console.log(id);
     //console.log(quantity);

@@ -1,31 +1,17 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef } from "react";
 import { Link } from "react-router-dom";
 import { useForm, SubmitHandler } from "react-hook-form";
 import SignInForm from "../common/SignInForm";
 import SignUpForm from "../common/SignUpForm";
 import ForgotForm from "../common/ForgotForm";
-import {
-  Form,
-  InputGroup,
-  Modal,
-  ButtonToolbar,
-  Button,
-  Alert,
-  ToggleButton,
-  ToggleButtonGroup,
-} from "react-bootstrap";
-import Icofont from "react-icofont";
+import { Modal, Button, Alert } from "react-bootstrap";
 import Amplify from "@aws-amplify/core";
 import Auth from "@aws-amplify/auth";
 import awsConfig from "../../awsConfig";
 import {
-  NOTSIGNIN,
   SIGNEDIN,
   OTPSENT,
   NOUSER,
-  WRONGOTP,
-  USEREXISTS,
-  UNKNOWNERR,
   USERSIGNUP,
   WRONGUSER,
 } from "../../ErrorConstants";
@@ -48,23 +34,26 @@ const LoginModal = (props: any) => {
 
   /*** Sign Up */
   const [showOtp, setShowOtp] = useState(false);
-  const [disabled, setDisabled] = useState(false);
   const [mobileDisabled, setMobileDisabled] = useState(false);
   const [otpBtn, setOtpBtn] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [otp, setOtp] = useState("");
+  const [mobile, setMobile] = useState("");
+  const [isHuman, setIsHuman] = useState(false);
 
   /*** Forgot */
-  const [forgot, setForgot] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
 
   /**Common */
   const [form, setForm] = useState("signin");
-  const [message, setMessage] = useState("");
-  const [notification, setNotification] = useState(false);
+  const [message, setMessage] = useState<any>("");
 
   /** Form Ref */
   const signInFormRef = useRef();
   const signUpFormRef = useRef();
   const forgotForm = useRef();
+
+  let errorMsg: any = [];
 
   const {
     register,
@@ -73,6 +62,10 @@ const LoginModal = (props: any) => {
   } = useForm<Inputs>();
 
   const onSignInSubmit: SubmitHandler<Inputs> = (data) => {
+    if (!isHuman) {
+      setMessage(`Captcha is required`);
+      return false;
+    }
     const { mobile, password } = data;
     logIn(mobile, password);
   };
@@ -102,11 +95,16 @@ const LoginModal = (props: any) => {
   };
 
   const onSignUpSubmit: SubmitHandler<Inputs> = async (data) => {
-    let { signUpMobile, signUpPassword, signUpOtp } = data;
+    if (!isHuman) {
+      setMessage(`Captcha is required`);
+      return false;
+    }
+    let { signUpMobile, signUpPassword } = data;
 
     let userName = signUpMobile.replace("+", "");
+    setMobile(signUpMobile);
 
-    if (!signUpOtp) {
+    if (otp.length !== 6) {
       await Auth.signUp({
         username: userName,
         password: signUpPassword,
@@ -121,29 +119,19 @@ const LoginModal = (props: any) => {
         })
         .catch((e) => {
           console.log(e);
-          setDisabled(false);
           setInfo("");
-          if (e.code === "UserNotFoundException") {
-            setMessage(NOUSER);
-          } else if (e.code === "UsernameExistsException") {
-            setMessage(
-              USEREXISTS + ` If you want to resend OTP, please try resending it`
-            );
-            //resendOtp(userName);
-
-            //signIn();
+          if (e.code === "UsernameExistsException") {
+            resendOtp(signUpMobile);
           } else {
             setMessage(e.message);
           }
         });
     } else {
-      onVerify(userName, signUpOtp, signUpPassword);
+      onVerify(userName, otp, signUpPassword);
     }
   };
 
   const onVerify = (userName: any, signUpOtp: any, signUpPassword: any) => {
-    setDisabled(true);
-
     Auth.confirmSignUp(userName, signUpOtp).then((res) => {
       console.log(res);
       setInfo(USERSIGNUP);
@@ -151,89 +139,111 @@ const LoginModal = (props: any) => {
     });
   };
 
-  const resendOtp = (resendMobile: any) => {
+  const resendOtp = (userName?: any) => {
+    if (!isHuman) {
+      setMessage(`Captcha is required`);
+      return false;
+    }
+
+    let resendMobile = userName ? userName : mobile;
     resendMobile = resendMobile.replace("+", "");
     Auth.resendSignUp(resendMobile)
       .then((res) => {
         setShowOtp(true);
+        setIsHuman(false);
       })
       .catch((e) => {
-        console.log(e);
+        setMessage(e.message);
+        setIsHuman(false);
       });
   };
 
-  const reset = () => {
-    setForm(form == "signin" ? "signup" : "signin");
-    errors.mobile = undefined;
-    errors.password = undefined;
-    errors.signUpMobile = undefined;
-    errors.signUpPassword = undefined;
-    setNotification(false);
-  };
-
   const showForgot = () => {
+    setIsHuman(false);
     setForm("forgot");
   };
 
-  const onForgotFormSubmit = () => {};
+  const onForgotFormSubmit = (userName?: any) => {
+    setIsHuman(false);
+    Auth.forgotPassword(userName);
+  };
+
   const backToLogin = () => {
+    setIsHuman(false);
     setForm("signin");
   };
 
+  const onHide = () => {
+    setIsHuman(false);
+    props.onHide();
+  };
+
+  const captchOnChange = () => {
+    setIsHuman(true);
+  };
+
+  const captchOnExpired = () => {
+    setIsHuman(false);
+  };
+
   return (
-    <Modal show={props.visible} onHide={props.onHide} centered>
+    <Modal show={props.visible} onHide={onHide} centered>
       <Modal.Header closeButton={true}>
         <Modal.Title as="h5" id="add-address">
-          {form == "signin"
+          {form === "signin"
             ? `SIGN IN`
-            : form == "forgot"
+            : form === "forgot"
             ? `FORGOT`
             : `SIGN UP`}
-          {form == "signin" && <i> - Welcome Back!</i>}
-          {form == "forgot" && <i> - Reset your password</i>}
-          {form == "signup" && <i> - Hey, New Buddy!</i>}
+          {form === "signin" && <i> - Welcome Back!</i>}
+          {form === "forgot" && <i> - Reset your password</i>}
+          {form === "signup" && <i> - Hey, New Buddy!</i>}
         </Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        {form == "signin" && (
+        {form === "signin" && (
           <SignInForm
             onSignInSubmit={onSignInSubmit}
             register={register}
             errors={errors}
             handleSubmit={handleSubmit}
-            reset={reset}
             form={form}
             signInFormRef={signInFormRef}
             message={message}
             setMessage={setMessage}
             showForgot={showForgot}
             backToLogin={backToLogin}
+            isHuman={isHuman}
+            captchOnChange={captchOnChange}
+            captchOnExpired={captchOnExpired}
           />
         )}
 
-        {form == "forgot" && (
+        {form === "forgot" && (
           <ForgotForm
             onForgotFormSubmit={onForgotFormSubmit}
             register={register}
             errors={errors}
             handleSubmit={handleSubmit}
-            reset={reset}
             form={form}
             forgotForm={forgotForm}
             message={message}
             setMessage={setMessage}
             showForgotPassword={showForgotPassword}
             setShowForgotPassword={setShowForgotPassword}
+            backToLogin={backToLogin}
+            isHuman={isHuman}
+            captchOnChange={captchOnChange}
+            captchOnExpired={captchOnExpired}
           />
         )}
 
-        {form == "signup" && (
+        {form === "signup" && (
           <SignUpForm
             onSignUpSubmit={onSignUpSubmit}
             register={register}
             errors={errors}
             handleSubmit={handleSubmit}
-            reset={reset}
             form={form}
             showOtp={showOtp}
             otpBtn={otpBtn}
@@ -241,10 +251,18 @@ const LoginModal = (props: any) => {
             message={message}
             setMessage={setMessage}
             mobileDisabled={mobileDisabled}
+            setShowPassword={setShowPassword}
+            showPassword={showPassword}
+            setOtp={setOtp}
+            otp={otp}
+            resendOtp={resendOtp}
+            isHuman={isHuman}
+            captchOnChange={captchOnChange}
+            captchOnExpired={captchOnExpired}
           />
         )}
       </Modal.Body>
-      {info ? (
+      {info && (
         <Alert
           variant="success"
           dismissible
@@ -256,8 +274,31 @@ const LoginModal = (props: any) => {
         >
           {info}
         </Alert>
-      ) : (
-        ""
+      )}
+
+      {message ? errorMsg.push(<li key={0.0}>{message}</li>) : ""}
+
+      {otp.length > 0 &&
+        errorMsg.push(<li key={0.1}>OTP field is required</li>)}
+
+      {Object.values(errors).forEach((err: any, index: any) => {
+        if (typeof err !== "undefined")
+          errorMsg.push(<li key={index}>{err.message}</li>);
+      })}
+
+      {errorMsg.length > 0 && (
+        <Alert
+          variant="danger"
+          dismissible
+          role="alert"
+          className=""
+          onClose={() => {
+            setMessage(null);
+          }}
+        >
+          Errors:
+          <ul>{errorMsg}</ul>
+        </Alert>
       )}
 
       <Modal.Footer>
@@ -269,27 +310,29 @@ const LoginModal = (props: any) => {
         >
           CANCEL
         </Button>
-        {form == "signin" && (
+        {form === "signin" && (
           <Button
             type="submit"
             variant="primary"
             className="d-flex w-100 text-center justify-content-center"
             form="signInForm"
+            disabled={!isHuman}
           >
             SIGN IN
           </Button>
         )}
-        {form == "signup" && (
+        {form === "signup" && (
           <Button
             type="submit"
             variant="primary"
             form="signUpForm"
             className="d-flex w-100 text-center justify-content-center"
+            disabled={!isHuman}
           >
             SIGN UP
           </Button>
         )}
-        {form == "forgot" && (
+        {form === "forgot" && (
           <Button
             type="submit"
             variant="primary"
@@ -301,22 +344,18 @@ const LoginModal = (props: any) => {
         )}
 
         <div className="text-center pt-3">
-          {form == "signin"
-            ? "Don't you have an account? "
-            : " Already have an account? "}
+          {form === "signin" && "Don't you have an account? "}
+          {form === "signup" && "Already have an account? "}
           <Link
             className="font-weight-bold"
             to=""
             onClick={() => {
-              setForm(form == "signin" ? "signup" : "signin");
-              errors.mobile = undefined;
-              errors.password = undefined;
-              errors.signUpMobile = undefined;
-              errors.signUpPassword = undefined;
-              setNotification(false);
+              setIsHuman(false);
+              setForm(form === "signin" ? "signup" : "signin");
             }}
           >
-            {form == "signin" ? "Sign Up" : "Sign In"}
+            {form === "signin" && "Sign Up"}
+            {form === "signup" && "Sign In"}
           </Link>
         </div>
       </Modal.Footer>

@@ -11,7 +11,7 @@ import {
   Rating,
 } from "@mui/material";
 
-const DistanceSlider = (props: any) => {
+const QuickFilter = (props: any) => {
   let input = {};
   useEffect(() => {
     props.vendor.then((res: any) => {
@@ -74,7 +74,7 @@ const DistanceSlider = (props: any) => {
     <>
       <FormControlLabel
         value="VEG"
-        control={<Switch color="secondary" />}
+        control={<Switch color="error" />}
         label="Veg Only"
         labelPlacement="start"
         onChange={onTypeChangeHandler}
@@ -119,4 +119,4 @@ const mapStateToProps = (state: any) => {
     vendor: state.vendor,
   };
 };
-export default connect(mapStateToProps)(DistanceSlider);
+export default connect(mapStateToProps)(QuickFilter);

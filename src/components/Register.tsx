@@ -5,7 +5,6 @@ import Amplify from "@aws-amplify/core";
 import Auth from "@aws-amplify/auth";
 import awsConfig from "../awsConfig";
 import { useNavigate } from "react-router-dom";
-import { PhoneInput } from "react-contact-number-input";
 import "../PhoneInput.css";
 import {
   OTPSENT,
@@ -22,7 +21,6 @@ function Register() {
   const [message, setMessage] = useState("");
   const [disabled, setDisabled] = useState(false);
   const [info, setInfo] = useState("");
-  const [user, setUser] = useState(null);
   const [session, setSession] = useState(null);
   const [otp, setOtp] = useState("");
   const [number, setNumber] = useState("");
@@ -99,7 +97,6 @@ function Register() {
   const verifyOtp = () => {
     Auth.sendCustomChallengeAnswer(session, otp)
       .then((user) => {
-        setUser(user);
         setSession(null);
         navigate("/");
       })

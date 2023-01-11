@@ -6,7 +6,7 @@ const SideBarHead = (props: any) => {
     <Row className="">
       {props.sideBar && (
         <Col md={3}>
-          <h4 className="font-weight-bold mt-0 mb-3">FILTERS</h4>
+          {/* <h4 className="font-weight-bold mt-0 mb-3">FILTERS</h4> */}
         </Col>
       )}
       <Col md={props.sideBar ? 5 : 8}>

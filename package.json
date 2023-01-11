@@ -1,33 +1,23 @@
 {
   "name": "maaroos-web",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "dependencies": {
     "@aws-amplify/auth": "^4.6.10",
     "@aws-amplify/core": "^4.7.8",
-    "@aws-cdk/aws-rds": "^1.181.0",
     "@emotion/react": "^11.10.4",
     "@emotion/styled": "^11.10.4",
-    "@fortawesome/fontawesome-svg-core": "^1.2.19",
-    "@fortawesome/free-solid-svg-icons": "^5.9.0",
     "@fullcalendar/core": "^6.0.1",
     "@fullcalendar/daygrid": "^6.0.1",
     "@fullcalendar/interaction": "^6.0.1",
     "@fullcalendar/react": "^6.0.1",
     "@fullcalendar/timegrid": "^6.0.1",
-    "@mui/icons-material": "^5.10.3",
     "@mui/material": "^5.10.5",
-    "@testing-library/jest-dom": "^5.16.5",
-    "@testing-library/react": "^13.4.0",
-    "@testing-library/user-event": "^13.5.0",
-    "@types/jest": "^27.5.2",
-    "@types/lodash": "^4.14.185",
     "@types/node": "^16.11.62",
     "@types/react": "^18.0.21",
     "@types/react-dom": "^18.0.6",
     "@types/react-geocode": "^0.2.1",
     "@types/react-router-dom": "^5.3.3",
-    "awesome-typescript-loader": "^5.2.1",
     "bootstrap": "^4.3.1",
     "dotenv": "^16.0.3",
     "font-awesome": "^4.7.0",
@@ -37,6 +27,7 @@
     "react-dom": "^18.2.0",
     "react-geocode": "^0.2.3",
     "react-google-autocomplete": "^2.7.0",
+    "react-google-recaptcha": "^2.1.0",
     "react-hook-form": "^7.39.1",
     "react-icofont": "0.0.6",
     "react-loading-skeleton": "^3.1.0",
@@ -74,5 +65,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "@types/react-google-recaptcha": "^2.1.5"
   }
 }

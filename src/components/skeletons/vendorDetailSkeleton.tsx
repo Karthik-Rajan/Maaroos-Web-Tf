@@ -1,29 +1,7 @@
 import React from "react";
 import Skeleton from "@mui/material/Skeleton";
-import { Link, useParams } from "react-router-dom";
-import {
-  Row,
-  Col,
-  Container,
-  Form,
-  InputGroup,
-  Button,
-  Tab,
-  Nav,
-  Image,
-  Badge,
-} from "react-bootstrap";
-import ItemsCarousel from "../common/ItemsCarousel";
-import GalleryCarousel from "../common/GalleryCarousel";
-import CheckoutItem from "../common/CheckoutItem";
-import BestSeller from "../common/BestSeller";
-import QuickBite from "../common/QuickBite";
-import StarRating from "../common/StarRating";
-import RatingBar from "../common/RatingBar";
-import Review from "../common/Review";
+import { Row, Col, Container, Tab, Image, Badge } from "react-bootstrap";
 import Icofont from "react-icofont";
-import _ from "lodash";
-const imageBannerSkeleton = <Skeleton width={800} height={400} />;
 const nameSkeleton = <Skeleton width={80} />;
 const descSkeleton = <Skeleton width={150} height={50} />;
 const fullDescSkeleton = <Skeleton width={700} height={70} />;

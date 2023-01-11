@@ -1,15 +1,8 @@
-import React, { useState, useRef, useEffect } from "react";
+import React from "react";
 import { Link } from "react-router-dom";
-import {
-  Form,
-  InputGroup,
-  Modal,
-  ButtonToolbar,
-  Button,
-  Alert,
-  ToggleButton,
-  ToggleButtonGroup,
-} from "react-bootstrap";
+import ReCAPTCHA from "react-google-recaptcha";
+import Icofont from "react-icofont";
+import { Form, InputGroup, Button } from "react-bootstrap";
 
 const ForgotForm = (props: any) => {
   return (
@@ -21,12 +14,31 @@ const ForgotForm = (props: any) => {
       <div className="form-row">
         <Form.Group className="col-md-12">
           <Form.Label>Mobile Number</Form.Label>
-          <Form.Control
-            type="text"
-            placeholder="+9190*****738"
-            {...props.register("mobile", { required: true })}
-          />
+          <InputGroup>
+            <Form.Control
+              type="text"
+              placeholder="+9190*****738"
+              {...props.register("forgotMobile", {
+                required: `Mobile field is required`,
+              })}
+            />
+
+            <InputGroup.Append>
+              <Button
+                variant="outline-secondary"
+                type="submit"
+                form="signUpForm"
+                id="button-addon2"
+                disabled={!props.isHuman || props.otpBtn}
+              >
+                <Icofont icon="iphone" />
+                {/* {count ? "Resend in " + count + " secs" : " Send OTP"} */}
+                Send OTP
+              </Button>
+            </InputGroup.Append>
+          </InputGroup>
         </Form.Group>
+
         {props.showForgotPassword && (
           <Form.Group className="col-md-12">
             <Form.Label>Password</Form.Label>
@@ -34,9 +46,15 @@ const ForgotForm = (props: any) => {
               type="password"
               placeholder="Min 8 length"
               {...props.register("forgotPassword", {
-                required: true,
-                min: 8,
-                pattern: /^[\S]+.*[\S]+$/,
+                required: `Password field is required`,
+                pattern: {
+                  value: /((?=.*\d)(?=.*[A-Z]|[a-z])(?=.*\W).{8,})/,
+                  message: `Password does not match pattern. Password must contain atleast one number(0-9), one lowercase(a-z), one uppercase(A-Z)`,
+                },
+                minLength: {
+                  value: 8,
+                  message: `Password should have minimum 8 length`,
+                },
               })}
             />
           </Form.Group>
@@ -56,6 +74,14 @@ const ForgotForm = (props: any) => {
             </InputGroup>
           </Form.Group>
         )}
+        <Form.Group className="col-md-12">
+          <ReCAPTCHA
+            sitekey="6Le2eN0ZAAAAAKrQEbigFF2HPDH3sbqP2oIXCWUH"
+            onChange={() => {
+              props.setIsHuman(true);
+            }}
+          />
+        </Form.Group>
       </div>
       <div className="pt-3">
         <Link
@@ -65,7 +91,7 @@ const ForgotForm = (props: any) => {
             props.backToLogin();
           }}
         >
-          Back to login
+          {`<< Back to login`}
         </Link>
       </div>
     </Form>

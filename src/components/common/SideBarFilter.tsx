@@ -1,8 +1,8 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { Accordion, Button, Form } from "react-bootstrap";
 import Icofont from "react-icofont";
 import { Link } from "react-router-dom";
-import DistanceSlider from "./DistanceSlider";
+import QuickFilter from "./QuickFilter";
 
 const SideBarFilter = (props: any) => {
   return (
@@ -10,14 +10,14 @@ const SideBarFilter = (props: any) => {
       <div className="sideBarFilter filters shadow-sm rounded bg-white mb-4">
         <div className="filters-header border-bottom pl-4 pr-4 pt-3 pb-3">
           <h5 className="m-0">Filter By</h5>
-          <span
+          {/* <span
             className="reset"
             onClick={() => {
               props.resetFilters();
             }}
           >
             reset
-          </span>
+          </span> */}
           <span
             className="close"
             onClick={() => {
@@ -53,7 +53,7 @@ const SideBarFilter = (props: any) => {
               </div>
               <Accordion.Collapse eventKey="0">
                 <div className="filters-card-body card-shop-filters">
-                  <DistanceSlider
+                  <QuickFilter
                     filterList={props.filterList}
                     onFilter={props.onFilter}
                   />

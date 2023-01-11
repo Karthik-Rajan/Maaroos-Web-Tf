@@ -1,5 +1,5 @@
 import Auth from "@aws-amplify/auth";
-export const BASE_URL = process.env.REACT_APP_API_URL + `prod`;
+export const BASE_URL = process.env.REACT_APP_API_URL;
 
 export const guestHeaders = {
   headers: {

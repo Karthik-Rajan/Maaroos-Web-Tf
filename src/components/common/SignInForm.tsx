@@ -1,19 +1,9 @@
-import React, { useState, useRef, useEffect } from "react";
+import React from "react";
 import { Link } from "react-router-dom";
-import ForgotForm from "./ForgotForm";
-import {
-  Form,
-  InputGroup,
-  Modal,
-  ButtonToolbar,
-  Button,
-  Alert,
-  ToggleButton,
-  ToggleButtonGroup,
-} from "react-bootstrap";
+import { Form } from "react-bootstrap";
+import ReCAPTCHA from "react-google-recaptcha";
 
 const SignInForm = (props: any) => {
-  let errors = props.errors;
   return (
     <>
       <Form
@@ -27,7 +17,9 @@ const SignInForm = (props: any) => {
             <Form.Control
               type="text"
               placeholder="+9190*****738"
-              {...props.register("mobile", { required: true })}
+              {...props.register("mobile", {
+                required: `Mobile field is required`,
+              })}
             />
           </Form.Group>
           <Form.Group className="col-md-12">
@@ -36,10 +28,23 @@ const SignInForm = (props: any) => {
               type="password"
               placeholder="Min 8 length"
               {...props.register("password", {
-                required: true,
-                min: 8,
-                pattern: /^[\S]+.*[\S]+$/,
+                required: `Password field is required`,
+                pattern: {
+                  value: /((?=.*\d)(?=.*[A-Z]|[a-z])(?=.*\W).{8,})/,
+                  message: `Password does not match pattern. Password must contain atleast one number(0-9), one lowercase(a-z), one uppercase(A-Z)`,
+                },
+                minLength: {
+                  value: 8,
+                  message: `Password should have minimum 8 length`,
+                },
               })}
+            />
+          </Form.Group>
+          <Form.Group className="col-md-12">
+            <ReCAPTCHA
+              sitekey="6Le2eN0ZAAAAAKrQEbigFF2HPDH3sbqP2oIXCWUH"
+              onChange={props.captchOnChange}
+              onExpired={props.captchOnExpired}
             />
           </Form.Group>
         </div>
@@ -51,51 +56,10 @@ const SignInForm = (props: any) => {
               props.showForgot();
             }}
           >
-            {props.form == "signin" && "Forgot your password? "}
+            {props.form === "signin" && "Forgot your password? "}
           </Link>
         </div>
       </Form>
-
-      {(errors.mobile || errors.password || props.message) && (
-        <Alert
-          variant="danger"
-          dismissible
-          role="alert"
-          className=""
-          onClose={() => {
-            errors.mobile = undefined;
-            errors.password = undefined;
-            props.setMessage(null);
-          }}
-        >
-          Errors:
-          <ul>
-            {props.message && <li>{props.message}</li>}
-
-            {errors.mobile && <li>Mobile number field is required</li>}
-
-            {errors.password && errors.password.type == "required" && (
-              <li>Password field is required</li>
-            )}
-
-            {errors.password && errors.password.type == "pattern" && (
-              <li>
-                Password should :
-                <br />
-                1. Contains at least 1 number (0 to 9)
-                <br />
-                2. Contains at least 1 special character{" "}
-                {`(^ $ * . [ ] { } ( ) ? - " ! @ # % & / \ , > < ' : ; | _ ~ ` +
-                  `+ =)`}
-              </li>
-            )}
-
-            {errors.password && errors.password.type == "min" && (
-              <li>Password field needs atleast 8 length</li>
-            )}
-          </ul>
-        </Alert>
-      )}
     </>
   );
 };

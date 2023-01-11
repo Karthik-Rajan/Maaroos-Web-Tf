@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { NavLink, Link, useNavigate } from "react-router-dom";
+import { NavLink, Link } from "react-router-dom";
 import { Row, Col, Container, Image } from "react-bootstrap";
 import Offers from "./myaccount/Offers";
 import Orders from "./myaccount/Orders";
@@ -8,7 +8,6 @@ import Payments from "./myaccount/Payments";
 import Addresses from "./myaccount/Addresses";
 import EditProfileModal from "./modals/EditProfileModal";
 import Amplify from "@aws-amplify/core";
-import Auth from "@aws-amplify/auth";
 import awsConfig from "./../awsConfig";
 import TrackOrder from "./TrackOrder";
 // import { BASE_URL, ME } from "../constants/user";
@@ -16,9 +15,7 @@ import { connect } from "react-redux";
 
 const MyAccount = (props: any) => {
   Amplify.configure(awsConfig);
-  let navigate = useNavigate();
   const [user, setUser] = useState<any>({});
-  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     props.dispatch({ type: "USER_PROFILE_FETCH", payload: {} });
@@ -28,8 +25,6 @@ const MyAccount = (props: any) => {
   }, []);
 
   const [showEditProfile, setShowEditProfile] = useState(false);
-
-  const hideEditProfile = () => setShowEditProfile(false);
 
   const [page, setPage] = useState("orders");
 
