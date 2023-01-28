@@ -7,17 +7,8 @@ import {
   guestHeaders,
 } from "../constants/apis";
 
-let response = {
-  type: "",
-  search: {},
-  location: {},
-  list: [],
-  detail: {},
-};
-
 export const vendorList = async (payload: any) => {
-  response = {
-    ...response,
+  const response = {
     type: "LOCATION",
     search: payload.search,
     location: payload.location,
@@ -62,7 +53,7 @@ export const userProfile: any = async (
 };
 
 export const vendorDetail = async ({ vId }: any) => {
-  response = { ...response, type: "DETAIL" };
+  const response = { type: "DETAIL" };
   return await fetch(BASE_URL + DETAIL + vId, {
     ...methodProps("GET"),
     ...guestHeaders,
@@ -76,7 +67,7 @@ export const vendorDetail = async ({ vId }: any) => {
 };
 
 export const fetchMySchedule = async ({ vId, types, from, to }: any) => {
-  response = { ...response, type: "MY_CALENDAR" };
+  const response = { type: "MY_CALENDAR" };
   return await fetch(BASE_URL + `/` + vId + MY_CALENDAR, {
     ...methodProps("POST", { types, from, to }),
     ...authHeaders(),

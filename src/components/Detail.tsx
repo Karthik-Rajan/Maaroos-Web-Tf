@@ -26,8 +26,12 @@ import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
+import NoAccess from "./NoAccess";
+let reload = 0;
+const Detail = (props: any) => {
+  console.log(props);
 
-const Detail = ({ vendor, dispatch }: any) => {
+  const { dispatch, vendorDetail, isAuthenticated, showModal } = props;
   let { vId } = useParams();
 
   const [detail, setDetail] = useState<any>(null);
@@ -37,21 +41,36 @@ const Detail = ({ vendor, dispatch }: any) => {
   const reviewUser = [];
   const [users] = useState([]);
 
-  vendor.then((res: any) => {
-    setDetail(res.detail);
-    setCalendarInput({ ...calendarInput, types: ["BF", "LN"] });
-    reviewUser.push({
-      name: res.detail.first_name,
-      image: res.detail.profile_img,
-      url: "#",
-    });
-    setIsLoading(false);
-  });
-
   useEffect(() => {
-    dispatch({ type: "DETAIL", payload: { vId } });
-    dispatch({ type: "MY_CALENDAR", payload: { ...calendarInput, vId } });
-  }, []);
+    console.log("count", reload);
+    if (reload === 0) {
+      dispatch({ type: "DETAIL", payload: { vId } });
+      reload++;
+    }
+    if (isAuthenticated)
+      dispatch({
+        type: "MY_CALENDAR",
+        payload: { ...calendarInput, vId },
+      });
+
+    if (reload > 0) {
+      vendorDetail.then((res: any) => {
+        console.log("detail res", res.detail);
+        if (res.detail.length != 0) {
+          console.log("reloading");
+          // reload++;
+        }
+        setDetail(res.detail);
+        setCalendarInput({ ...calendarInput, types: ["BF", "LN"] });
+        reviewUser.push({
+          name: res.detail.first_name,
+          image: res.detail.profile_img,
+          url: "#",
+        });
+        setIsLoading(false);
+      });
+    }
+  }, [reload]);
 
   const getQty = ({ id, quantity }: any) => {
     //console.log(id);
@@ -173,85 +192,89 @@ const Detail = ({ vendor, dispatch }: any) => {
                       <Tab.Content className="h-100">
                         <Tab.Pane eventKey="zero">
                           {/* <Row> */}
-                          <FullCalendar
-                            plugins={[
-                              dayGridPlugin,
-                              timeGridPlugin,
-                              interactionPlugin,
-                            ]}
-                            headerToolbar={{
-                              left: "prev,next today",
-                              center: "title",
-                              right: "dayGridMonth,timeGridWeek,timeGridDay",
-                            }}
-                            initialView="dayGridMonth"
-                            editable={true}
-                            selectable={true}
-                            selectMirror={true}
-                            dayMaxEvents={true}
-                            weekends={true}
-                            // weekNumbers={true}
-                            themeSystem={"bootstrap5"}
-                            dayHeaders={true}
-                            initialEvents={[
-                              {
-                                id: "1",
-                                title: "All-day event",
-                                start: "2022-12-27 18:50:00",
-                              },
-                              {
-                                id: "2",
-                                title: "Timed event",
-                                start: "2022-12-23 18:50:00",
-                              },
-                              {
-                                id: "1",
-                                title: "All-day event",
-                                start: "2022-12-23 18:50:00",
-                              },
-                              {
-                                id: "2",
-                                title: "Timed event",
-                                start: "2022-12-23 18:50:00",
-                              },
-                              {
-                                id: "1",
-                                title: "All-day event",
-                                start: "2022-12-23 18:50:00",
-                              },
-                              {
-                                id: "2",
-                                title: "Timed event",
-                                start: "2022-12-23 18:50:00",
-                              },
-                              {
-                                id: "1",
-                                title: "All-day event",
-                                start: "2022-12-23 18:50:00",
-                              },
-                              {
-                                id: "2",
-                                title: "Timed event",
-                                start: "2022-12-23 18:50:00",
-                              },
-                            ]} // alternatively, use the `events` setting to fetch from a feed
-                            select={() => {
-                              console.log("select");
-                            }}
-                            eventContent={() => {}} // custom render function
-                            eventClick={() => {
-                              console.log("eventClick");
-                            }}
-                            eventsSet={() => {
-                              console.log("eventsSet");
-                            }} // called after events are initialized/added/changed/removed
-                            /* you can update a remote database when these fire:
-            eventAdd={function(){}}
-            eventChange={function(){}}
-            eventRemove={function(){}}
-            */
-                          />
-                          {/* </Row> */}
+                          {isAuthenticated && (
+                            <FullCalendar
+                              plugins={[
+                                dayGridPlugin,
+                                timeGridPlugin,
+                                interactionPlugin,
+                              ]}
+                              headerToolbar={{
+                                left: "prev,next today",
+                                center: "title",
+                                right: "dayGridMonth,timeGridWeek,timeGridDay",
+                              }}
+                              initialView="dayGridMonth"
+                              editable={true}
+                              selectable={true}
+                              selectMirror={true}
+                              dayMaxEvents={true}
+                              weekends={true}
+                              // weekNumbers={true}
+                              themeSystem={"bootstrap5"}
+                              dayHeaders={true}
+                              initialEvents={[
+                                {
+                                  id: "1",
+                                  title: "All-day event",
+                                  start: "2022-12-27 18:50:00",
+                                },
+                                {
+                                  id: "2",
+                                  title: "Timed event",
+                                  start: "2022-12-23 18:50:00",
+                                },
+                                {
+                                  id: "1",
+                                  title: "All-day event",
+                                  start: "2022-12-23 18:50:00",
+                                },
+                                {
+                                  id: "2",
+                                  title: "Timed event",
+                                  start: "2022-12-23 18:50:00",
+                                },
+                                {
+                                  id: "1",
+                                  title: "All-day event",
+                                  start: "2022-12-23 18:50:00",
+                                },
+                                {
+                                  id: "2",
+                                  title: "Timed event",
+                                  start: "2022-12-23 18:50:00",
+                                },
+                                {
+                                  id: "1",
+                                  title: "All-day event",
+                                  start: "2022-12-23 18:50:00",
+                                },
+                                {
+                                  id: "2",
+                                  title: "Timed event",
+                                  start: "2022-12-23 18:50:00",
+                                },
+                              ]} // alternatively, use the `events` setting to fetch from a feed
+                              select={() => {
+                                console.log("select");
+                              }}
+                              eventContent={() => {}} // custom render function
+                              eventClick={() => {
+                                console.log("eventClick");
+                              }}
+                              eventsSet={() => {
+                                console.log("eventsSet");
+                              }} // called after events are initialized/added/changed/removed
+                              /* you can update a remote database when these fire:
+          eventAdd={function(){}}
+          eventChange={function(){}}
+          eventRemove={function(){}}
+          */
+                            />
+                          )}
+                          {!isAuthenticated && (
+                            <NoAccess detailPage={true} showModal={showModal} />
+                          )}
                         </Tab.Pane>
                         <Tab.Pane eventKey="first">
                           <h5 className="mb-4">Recommended</h5>
@@ -927,7 +950,7 @@ const Detail = ({ vendor, dispatch }: any) => {
 
 function mapStateToProps(state: any) {
   return {
-    ...state,
+    vendorDetail: state.vendor,
   };
 }
-export default connect(mapStateToProps)(Detail);
+export default connect<any>(mapStateToProps)(Detail);

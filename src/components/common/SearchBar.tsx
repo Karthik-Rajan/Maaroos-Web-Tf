@@ -44,10 +44,10 @@ const SearchBar = (props: any) => {
   };
 
   useEffect(() => {
-    // if (window.location.pathname === "/listing") {
-    //   setPageUrl("");
-    // }
-    if (window.location.pathname === "/") {
+    if (
+      window.location.pathname === "/listing" ||
+      window.location.pathname === "/"
+    ) {
       setQuickSearch(false);
     }
     props.vendor.then((res: any) => {
@@ -97,9 +97,11 @@ const SearchBar = (props: any) => {
         lat: qLat,
         lng: qLng,
       });
+      if (props.changeLocation) props.changeLocation(qLat, qLng);
     } else {
       const geoMet = addr.geometry.location;
       setCoordinatesTemp(geoMet);
+      if (props.changeLocation) props.changeLocation(geoMet.lat, geoMet.lng);
     }
   };
 
@@ -127,7 +129,6 @@ const SearchBar = (props: any) => {
   const onSearch = () => {
     if (!ref.current.value || !coordinatesTemp.lat || !coordinatesTemp.lng) {
       ref.current.focus();
-      // setPageUrl("/");
       return false;
     }
 
@@ -136,14 +137,6 @@ const SearchBar = (props: any) => {
 
     window.location.href =
       `/listing?q=` + coordinatesTemp.lat + `,` + coordinatesTemp.lng;
-
-    // props.dispatch({
-    //   type: "LOCATION",
-    //   payload: {
-    //     search: { ...input, ...coordinates },
-    //     location: { coordinates, name: location },
-    //   },
-    // });
   };
 
   return (
@@ -175,7 +168,13 @@ const SearchBar = (props: any) => {
               </div>
             </Form.Group>
           )}
-          <Form.Group className="col-lg-7 col-md-7 col-sm-12">
+          <Form.Group
+            className={
+              props.filterSearch
+                ? `col-lg-12 col-md-12 col-sm-12`
+                : `col-lg-7 col-md-7 col-sm-12`
+            }
+          >
             <Form.Control
               type="text"
               placeholder="Enter your delivery location"
@@ -190,15 +189,17 @@ const SearchBar = (props: any) => {
               <Icofont icon="ui-pointer" /> Locate Me
             </Link>
           </Form.Group>
-          <Form.Group className="col-lg-2 col-md-2 col-sm-12">
-            <Link
-              to={""}
-              className="btn btn-primary btn-block btn-lg btn-gradient"
-              onClick={onSearch}
-            >
-              Search
-            </Link>
-          </Form.Group>
+          {!props.filterSearch && (
+            <Form.Group className="col-lg-2 col-md-2 col-sm-12">
+              <Link
+                to={""}
+                className="btn btn-primary btn-block btn-lg btn-gradient"
+                onClick={onSearch}
+              >
+                Search
+              </Link>
+            </Form.Group>
+          )}
         </div>
       </Form>
     </div>

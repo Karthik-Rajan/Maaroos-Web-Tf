@@ -10,6 +10,7 @@ import {
   Slider,
   Rating,
 } from "@mui/material";
+import SearchBar from "./SearchBar";
 
 const QuickFilter = (props: any) => {
   let input = {};
@@ -70,20 +71,34 @@ const QuickFilter = (props: any) => {
     props.onFilter({ rating_avg: newValue });
   };
 
+  const changeLocation = (lat: number, lng: number) => {
+    setFilterValues({ ...filterValues, ...{ lat, lng } });
+    props.onFilter({ lat, lng });
+  };
+
   return (
     <>
-      <FormControlLabel
-        value="VEG"
-        control={<Switch color="error" />}
-        label="Veg Only"
-        labelPlacement="start"
-        onChange={onTypeChangeHandler}
-      />
+      <Box className="distSelection alignCenter">
+        <Typography>By Location</Typography>
+        <SearchBar filterSearch={true} changeLocation={changeLocation} />
+      </Box>
+      <Divider className="verticalDivider" />
+      <br />
+      <Box className="distSelection alignCenter">
+        <Typography>By Type</Typography>
+        <FormControlLabel
+          value="VEG"
+          control={<Switch color="error" />}
+          label="Veg Only"
+          labelPlacement="start"
+          onChange={onTypeChangeHandler}
+        />
+      </Box>
       <Divider className="verticalDivider" />
       <br />
       <Box className="distSelection">
         <Typography id="non-linear-slider" className="alignCenter">
-          Distance : {valueLabelFormat(filterValues.distance)}
+          By Distance : {valueLabelFormat(filterValues.distance)}
         </Typography>
         <Slider
           value={filterValues.distance}

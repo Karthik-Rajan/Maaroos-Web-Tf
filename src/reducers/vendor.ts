@@ -39,14 +39,19 @@ const reducer = async (state = initialState, action: any) => {
         return res;
       });
     case "DETAIL":
-      return await vendorDetail({ ...action.payload }).then((res: any) => {
-        return res;
+      console.log("action detail");
+      let detail = {};
+      await vendorDetail({ ...action.payload }).then((res: any) => {
+        detail = res;
       });
+      return detail;
+
     case "MY_CALENDAR":
       return await fetchMySchedule({ ...action.payload }).then((res: any) => {
         return res;
       });
     default:
+      console.log("action", action);
       return state;
   }
 };

@@ -4,15 +4,21 @@ import { Link } from "react-router-dom";
 
 const NoAccess = (props: any) => {
   return (
-    <section className="section pt-5 pb-5 osahan-not-found-page">
+    <section
+      className={
+        !props.detailPage ? `section pt-5 pb-5 osahan-not-found-page` : ""
+      }
+    >
       <Container>
         <Row>
           <Col md={12} className="text-center pt-5 pb-5">
-            <Image
-              className="unauthorized-img"
-              src="/img/unauthorized.png"
-              alt="unauthorized access"
-            />
+            {!props.detailPage && (
+              <Image
+                className="unauthorized-img"
+                src="/img/unauthorized.png"
+                alt="unauthorized access"
+              />
+            )}
             <h1 className="mt-2 mb-2">You`re Unauthorized</h1>
             <p>
               Uh-oh! Looks like the page you are trying to access, needs <br />

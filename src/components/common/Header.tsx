@@ -10,15 +10,13 @@ import {
 } from "react-bootstrap";
 import DropDownTitle from "./DropDownTitle";
 import Icofont from "react-icofont";
-import Amplify from "@aws-amplify/core";
 import Auth from "@aws-amplify/auth";
-import awsConfig from "../../awsConfig";
+import SearchBar from "./SearchBar";
 
 function Header(props: any) {
   // Amplify.configure(awsConfig);
   const [user, setUser] = useState(null);
   const [notification, setNotification] = useState(false);
-  const [visible, setVisible] = useState(false);
   const [isNavExpanded, setIsNavExpanded] = useState(false);
 
   useEffect(() => {
@@ -57,7 +55,7 @@ function Header(props: any) {
               <Image src="/img/logo.png" alt="Maaroos" className="logoImage" />
             </Navbar.Brand>
             <Navbar.Toggle />
-            {/* <SearchBar /> */}
+
             <Navbar.Collapse id="navbarNavDropdown">
               <Nav activeKey={0} className="ml-auto" onSelect={onCloseMenu}>
                 <Nav.Link
@@ -110,7 +108,7 @@ function Header(props: any) {
                     title={
                       <DropDownTitle
                         className="d-inline-block"
-                        image="img/user/4.png"
+                        image="/img/user/4.png"
                         imageAlt="user"
                         imageClass="nav-osahan-pic rounded-pill"
                         title="My Account"

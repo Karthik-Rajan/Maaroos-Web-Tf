@@ -56,9 +56,13 @@ function App() {
         <Route path="/listing" element={<List />} />
         <Route path="/404" element={<NotFound />} />
         <Route path="/extra" element={<Extra />} />
-        <Route path="/auth" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/listing/:vId/detail" element={<Detail />} />
+        <Route
+          path="/listing/:vId/detail"
+          element={
+            <Detail isAuthenticated={isAuthenticated} showModal={showModal} />
+          }
+        />
         <Route path="*" element={<NotFound />} />
         <Route
           path="/myaccount"

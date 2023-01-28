@@ -7,10 +7,7 @@ import SideBarFilter from "./common/SideBarFilter";
 import { connect } from "react-redux";
 import { useLocation } from "react-router-dom";
 
-let input = {
-  lat: 0,
-  lng: 0,
-};
+let input = {};
 
 let location = {};
 let reload = 0;
@@ -26,39 +23,38 @@ function List(props: any) {
   const callVendorList = async () => {
     setLoading(true);
 
-    input = { ...search, ...input };
+    input = { ...input, ...search };
+    let payload = { location, search: input };
 
     props.dispatch({
       type: "LOCATION",
-      payload: { search: input, location },
+      payload,
     });
   };
   const q: any = new URLSearchParams(loc.search).get("q");
 
   useEffect(() => {
-    if (typeof q != "undefined" && q) {
-      props.vendor
-        .then((res: any) => {
-          console.log(`VENDOR res`, res);
-          setList(res.list);
-          setLoading(false);
-          location = res.location;
-          if (input.lat == 0) {
-            console.log("setting", q);
-            setSearch({ ...input });
-          }
-          input = res.search;
-        })
-        .catch((err: any) => {
-          console.log("Error on Listing Page", err);
-          setList([]);
-          setLoading(false);
-        });
-    }
+    props.vendor
+      .then((res: any) => {
+        console.log(`VENDOR res`, res);
+        setList(res.list);
+        setLoading(false);
+        location = res.location;
+        // if (input) {
+        //   console.log("setting", q);
+        //   setSearch({ ...input });
+        // }
+        input = res.search;
+      })
+      .catch((err: any) => {
+        console.log("Error on Listing Page", err);
+        setList([]);
+        setLoading(false);
+      });
 
-    if (typeof q != "undefined" && q) {
-      console.log(q);
-      const coOrds = q.split(",");
+    console.log(q);
+    const coOrds = q ? q.split(",") : null;
+    if (coOrds) {
       input = {
         ...input,
         lat: parseFloat(coOrds[0]),
@@ -66,15 +62,16 @@ function List(props: any) {
       };
       setSearch(input);
       callVendorList();
-      if (reload === 0) {
-        reload++;
-      }
+    }
+    if (reload === 0) {
+      reload++;
     }
   }, [reload]);
 
-  const onApplyFilter = () => {
+  const onApplyFilter = async () => {
     console.log("Filters", search);
     callVendorList();
+    reload++;
   };
 
   const onFilter = (params: any) => {
@@ -93,17 +90,6 @@ function List(props: any) {
 
   return (
     <>
-      {/* <PageTitle
-        title="Offers Near You"
-        subTitle="Best deals at your favourite restaurants"
-      /> */}
-
-      {/* <section className="section pt-5 searchBarSection">
-        <Container>
-          <SearchBar />
-        </Container>
-      </section> */}
-
       {sideBar && (
         <SideBarFilter
           onClose={toggleSideBar}
@@ -115,7 +101,7 @@ function List(props: any) {
         />
       )}
 
-      <section className="section pt-5 pb-5">
+      <section className="section pt-1 pb-1">
         <Container fluid className="productListingContainer">
           <SideBarHead
             onClose={toggleSideBar}
