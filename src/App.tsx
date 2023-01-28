@@ -1,5 +1,5 @@
-import React from "react";
-import { Routes, Route, useLocation } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { Routes, Route } from "react-router-dom";
 import dotenv from "dotenv";
 
 import Header from "./components/common/Header";
@@ -12,6 +12,7 @@ import NotFound from "./components/NotFound";
 import Thanks from "./components/Thanks";
 import Extra from "./components/Extra";
 import Login from "./components/Login";
+import NoAccess from "./components/NoAccess";
 import Register from "./components/Register";
 import TrackOrder from "./components/TrackOrder";
 import Invoice from "./components/Invoice";
@@ -22,17 +23,34 @@ import "font-awesome/css/font-awesome.min.css";
 import "react-select2-wrapper/css/select2.css";
 import "react-loading-skeleton/dist/skeleton.css";
 import "./App.css";
+import Auth from "@aws-amplify/auth";
+import LoginModal from "./components/modals/LoginModal";
 
-dotenv.config();
 function App() {
-  const location = useLocation();
+  dotenv.config();
+
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [visible, setVisible] = useState(false);
+
+  const verifyAuth = async () => {
+    await Auth.currentAuthenticatedUser()
+      .then((res) => setIsAuthenticated(true))
+      .catch((err) => setIsAuthenticated(false));
+  };
+
+  useEffect(() => {
+    verifyAuth();
+  }, []);
+
+  const showModal = () => {
+    setVisible(visible ? false : true);
+  };
+
+  const noAccess = <NoAccess showModal={showModal} />;
+
   return (
     <>
-      {location.pathname !== "/auth" && location.pathname !== "/register" ? (
-        <Header />
-      ) : (
-        ""
-      )}
+      <Header showModal={showModal} />
       <Routes>
         <Route path="/" element={<Index />} />
         <Route path="/listing" element={<List />} />
@@ -41,20 +59,34 @@ function App() {
         <Route path="/auth" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/listing/:vId/detail" element={<Detail />} />
-        <Route element={<NotFound />} />
-        /** Auth */
-        <Route path="/myaccount" element={<MyAccount />} />
-        <Route path="/track-order" element={<TrackOrder />} />
-        <Route path="/invoice" element={<Invoice />} />
-        <Route path="/checkout" element={<Checkout />} />
-        <Route path="/thanks" element={<Thanks />} />
-        <Route path="/offers" element={<Offers />} />
+        <Route path="*" element={<NotFound />} />
+        <Route
+          path="/myaccount"
+          element={isAuthenticated ? <MyAccount /> : noAccess}
+        />
+        <Route
+          path="/track-order"
+          element={isAuthenticated ? <TrackOrder /> : noAccess}
+        />
+        <Route
+          path="/invoice"
+          element={isAuthenticated ? <Invoice /> : noAccess}
+        />
+        <Route
+          path="/checkout"
+          element={isAuthenticated ? <Checkout /> : noAccess}
+        />
+        <Route
+          path="/thanks"
+          element={isAuthenticated ? <Thanks /> : noAccess}
+        />
+        <Route
+          path="/offers"
+          element={isAuthenticated ? <Offers /> : noAccess}
+        />
       </Routes>
-      {location.pathname !== "/auth" && location.pathname !== "/register" ? (
-        <Footer />
-      ) : (
-        ""
-      )}
+      <LoginModal visible={visible} onHide={showModal} />
+      <Footer />
     </>
   );
 }

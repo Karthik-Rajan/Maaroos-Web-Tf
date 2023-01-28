@@ -19,7 +19,6 @@ function List(props: any) {
   let [list, setList] = useState([]);
   let [sideBar, setSideBar] = useState(true);
   let [loading, setLoading] = useState(true);
-  let [listCardClassName, setListCardClassName] = useState("productsListing");
   let [search, setSearch] = useState(input);
 
   const loc = useLocation();
@@ -37,23 +36,25 @@ function List(props: any) {
   const q: any = new URLSearchParams(loc.search).get("q");
 
   useEffect(() => {
-    props.vendor
-      .then((res: any) => {
-        console.log(res);
-        setList(res.list);
-        setLoading(false);
-        location = res.location;
-        if (input.lat <= 0) {
-          console.log("setting", q);
-          setSearch({ ...input });
-        }
-        input = res.search;
-      })
-      .catch((err: any) => {
-        console.log("Error on Listing Page", err);
-        setList([]);
-        setLoading(false);
-      });
+    if (typeof q != "undefined" && q) {
+      props.vendor
+        .then((res: any) => {
+          console.log(`VENDOR res`, res);
+          setList(res.list);
+          setLoading(false);
+          location = res.location;
+          if (input.lat == 0) {
+            console.log("setting", q);
+            setSearch({ ...input });
+          }
+          input = res.search;
+        })
+        .catch((err: any) => {
+          console.log("Error on Listing Page", err);
+          setList([]);
+          setLoading(false);
+        });
+    }
 
     if (typeof q != "undefined" && q) {
       console.log(q);
@@ -82,11 +83,6 @@ function List(props: any) {
 
   const toggleSideBar = (value: boolean) => {
     if (!sideBar === value) {
-      setListCardClassName(
-        listCardClassName === "productsListing"
-          ? "productsListingW75"
-          : "productsListing"
-      );
       setSideBar(value);
     }
   };
@@ -108,7 +104,18 @@ function List(props: any) {
         </Container>
       </section> */}
 
-      <section className={`section pt-5 pb-5 ` + listCardClassName}>
+      {sideBar && (
+        <SideBarFilter
+          onClose={toggleSideBar}
+          filterList={list}
+          onFilter={onFilter}
+          onApply={onApplyFilter}
+          resetFilters={resetFilters}
+          className="mob-sideFilterBar"
+        />
+      )}
+
+      <section className="section pt-5 pb-5">
         <Container fluid className="productListingContainer">
           <SideBarHead
             onClose={toggleSideBar}
@@ -117,18 +124,17 @@ function List(props: any) {
             search={search}
           />
           <Row>
-            {sideBar && (
-              <Col md={3}>
-                <SideBarFilter
-                  onClose={toggleSideBar}
-                  filterList={list}
-                  onFilter={onFilter}
-                  onApply={onApplyFilter}
-                  resetFilters={resetFilters}
-                />
-              </Col>
-            )}
-            <Col md={sideBar ? 9 : 12}>
+            <Col md={3}>
+              <SideBarFilter
+                onClose={false}
+                filterList={list}
+                onFilter={onFilter}
+                onApply={onApplyFilter}
+                resetFilters={resetFilters}
+                className="desk-sideFilterBar"
+              />
+            </Col>
+            <Col md={9}>
               <CategoriesCarousel />
               <ProductItems products={list} loading={loading} />
             </Col>

@@ -14,6 +14,7 @@ import {
   NOUSER,
   USERSIGNUP,
   WRONGUSER,
+  RESET,
 } from "../../ErrorConstants";
 
 const LoginModal = (props: any) => {
@@ -43,10 +44,12 @@ const LoginModal = (props: any) => {
 
   /*** Forgot */
   const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [forgotOtp, setForgotOtp] = useState("");
+  const [forgotOtpBtn, setForgotOtpBtn] = useState(false);
 
   /**Common */
   const [form, setForm] = useState("signin");
-  const [message, setMessage] = useState<any>("");
+  const [message, setMessage] = useState<any>(null);
 
   /** Form Ref */
   const signInFormRef = useRef();
@@ -120,6 +123,7 @@ const LoginModal = (props: any) => {
         .catch((e) => {
           console.log(e);
           setInfo("");
+          setOtpBtn(false);
           if (e.code === "UsernameExistsException") {
             resendOtp(signUpMobile);
           } else {
@@ -158,19 +162,52 @@ const LoginModal = (props: any) => {
       });
   };
 
-  const showForgot = () => {
-    setIsHuman(false);
-    setForm("forgot");
+  const onForgotFormSubmit = (data: any) => {
+    let { forgotMobile, forgotPassword } = data;
+    forgotMobile = forgotMobile.replace("+", "");
+    if (forgotOtp.length > 0) {
+      Auth.forgotPasswordSubmit(forgotMobile, forgotOtp, forgotPassword)
+        .then((res) => {
+          console.log(res);
+          setInfo(RESET);
+          setForm("signin");
+        })
+        .catch((e) => {
+          setInfo("");
+          setMessage(e.message);
+        });
+    } else {
+      Auth.forgotPassword(forgotMobile)
+        .then((res) => {
+          console.log(res);
+          setForgotOtpBtn(true);
+          setShowForgotPassword(true);
+        })
+        .catch((e) => {
+          setInfo("");
+          setForgotOtpBtn(false);
+          setMessage(e.message);
+        });
+    }
   };
 
-  const onForgotFormSubmit = (userName?: any) => {
+  const showForgot = () => {
     setIsHuman(false);
-    Auth.forgotPassword(userName);
+    setShowForgotPassword(false);
+    setMobile("");
+    setForm("forgot");
   };
 
   const backToLogin = () => {
     setIsHuman(false);
+    setMobile("");
     setForm("signin");
+  };
+
+  const backToSignUp = () => {
+    setIsHuman(false);
+    setOtpBtn(false);
+    setForm(form === "signin" ? "signup" : "signin");
   };
 
   const onHide = () => {
@@ -205,12 +242,9 @@ const LoginModal = (props: any) => {
           <SignInForm
             onSignInSubmit={onSignInSubmit}
             register={register}
-            errors={errors}
             handleSubmit={handleSubmit}
             form={form}
             signInFormRef={signInFormRef}
-            message={message}
-            setMessage={setMessage}
             showForgot={showForgot}
             backToLogin={backToLogin}
             isHuman={isHuman}
@@ -223,18 +257,18 @@ const LoginModal = (props: any) => {
           <ForgotForm
             onForgotFormSubmit={onForgotFormSubmit}
             register={register}
-            errors={errors}
             handleSubmit={handleSubmit}
             form={form}
             forgotForm={forgotForm}
-            message={message}
-            setMessage={setMessage}
             showForgotPassword={showForgotPassword}
             setShowForgotPassword={setShowForgotPassword}
             backToLogin={backToLogin}
             isHuman={isHuman}
             captchOnChange={captchOnChange}
             captchOnExpired={captchOnExpired}
+            forgotOtp={forgotOtp}
+            setForgotOtp={setForgotOtp}
+            forgotOtpBtn={forgotOtpBtn}
           />
         )}
 
@@ -242,14 +276,11 @@ const LoginModal = (props: any) => {
           <SignUpForm
             onSignUpSubmit={onSignUpSubmit}
             register={register}
-            errors={errors}
             handleSubmit={handleSubmit}
             form={form}
             showOtp={showOtp}
             otpBtn={otpBtn}
             signUpFormRef={signUpFormRef}
-            message={message}
-            setMessage={setMessage}
             mobileDisabled={mobileDisabled}
             setShowPassword={setShowPassword}
             showPassword={showPassword}
@@ -276,7 +307,7 @@ const LoginModal = (props: any) => {
         </Alert>
       )}
 
-      {message ? errorMsg.push(<li key={0.0}>{message}</li>) : ""}
+      {message && errorMsg.push(<li key={0.0}>{message}</li>)}
 
       {otp.length > 0 &&
         errorMsg.push(<li key={0.1}>OTP field is required</li>)}
@@ -285,8 +316,7 @@ const LoginModal = (props: any) => {
         if (typeof err !== "undefined")
           errorMsg.push(<li key={index}>{err.message}</li>);
       })}
-
-      {errorMsg.length > 0 && (
+      {errorMsg.length != 0 ? (
         <Alert
           variant="danger"
           dismissible
@@ -294,11 +324,14 @@ const LoginModal = (props: any) => {
           className=""
           onClose={() => {
             setMessage(null);
+            errorMsg = [];
           }}
         >
           Errors:
           <ul>{errorMsg}</ul>
         </Alert>
+      ) : (
+        ""
       )}
 
       <Modal.Footer>
@@ -338,6 +371,7 @@ const LoginModal = (props: any) => {
             variant="primary"
             form="forgotForm"
             className="d-flex w-100 text-center justify-content-center"
+            disabled={!isHuman}
           >
             Reset Password
           </Button>
@@ -346,14 +380,7 @@ const LoginModal = (props: any) => {
         <div className="text-center pt-3">
           {form === "signin" && "Don't you have an account? "}
           {form === "signup" && "Already have an account? "}
-          <Link
-            className="font-weight-bold"
-            to=""
-            onClick={() => {
-              setIsHuman(false);
-              setForm(form === "signin" ? "signup" : "signin");
-            }}
-          >
+          <Link className="font-weight-bold" to="" onClick={backToSignUp}>
             {form === "signin" && "Sign Up"}
             {form === "signup" && "Sign In"}
           </Link>

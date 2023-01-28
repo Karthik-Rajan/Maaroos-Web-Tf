@@ -13,10 +13,9 @@ import Icofont from "react-icofont";
 import Amplify from "@aws-amplify/core";
 import Auth from "@aws-amplify/auth";
 import awsConfig from "../../awsConfig";
-import LoginModal from "../modals/LoginModal";
 
 function Header(props: any) {
-  Amplify.configure(awsConfig);
+  // Amplify.configure(awsConfig);
   const [user, setUser] = useState(null);
   const [notification, setNotification] = useState(false);
   const [visible, setVisible] = useState(false);
@@ -36,17 +35,11 @@ function Header(props: any) {
     if (user) {
       Auth.signOut();
       setUser(null);
-    } else {
-      alert("You are already logged out");
     }
   };
 
   const onCloseMenu = () => {
     setIsNavExpanded(false);
-  };
-
-  const showModal = () => {
-    setVisible(visible ? false : true);
   };
 
   return (
@@ -91,8 +84,8 @@ function Header(props: any) {
                       eventKey={2}
                       as={NavLink}
                       activeclassname="active"
-                      to=""
-                      onClick={showModal}
+                      to="#"
+                      onClick={props.showModal}
                     >
                       <Icofont icon="ui-user" /> Login
                     </Nav.Link>
@@ -429,7 +422,6 @@ function Header(props: any) {
       ) : (
         ""
       )}
-      <LoginModal visible={visible} onHide={showModal} />
     </>
   );
 }

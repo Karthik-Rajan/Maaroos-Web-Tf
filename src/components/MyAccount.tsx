@@ -7,26 +7,34 @@ import Favourites from "./myaccount/Favourites";
 import Payments from "./myaccount/Payments";
 import Addresses from "./myaccount/Addresses";
 import EditProfileModal from "./modals/EditProfileModal";
-import Amplify from "@aws-amplify/core";
-import awsConfig from "./../awsConfig";
+// import Amplify from "@aws-amplify/core";
+import Auth from "@aws-amplify/auth";
+// import awsConfig from "./../awsConfig";
 import TrackOrder from "./TrackOrder";
-// import { BASE_URL, ME } from "../constants/user";
 import { connect } from "react-redux";
 
 const MyAccount = (props: any) => {
-  Amplify.configure(awsConfig);
+  // Amplify.configure(awsConfig);
   const [user, setUser] = useState<any>({});
+  const [showEditProfile, setShowEditProfile] = useState(false);
+  const [page, setPage] = useState("orders");
+
+  const verifyAuth = () => {
+    Auth.currentAuthenticatedUser()
+      .then((user) => {})
+      .catch((err) => {
+        console.error(err);
+        window.location.href = "/";
+      });
+  };
 
   useEffect(() => {
+    verifyAuth();
     props.dispatch({ type: "USER_PROFILE_FETCH", payload: {} });
     props.user.then((data: any) => {
       setUser(data.userData);
     });
   }, []);
-
-  const [showEditProfile, setShowEditProfile] = useState(false);
-
-  const [page, setPage] = useState("orders");
 
   return (
     <>
@@ -49,7 +57,9 @@ const MyAccount = (props: any) => {
                       />
                       <div className="osahan-user-media-body">
                         <h6 className="mb-2">
-                          {user?.first_name + " " + user?.second_name}
+                          {(user?.first_name || `NoName`) +
+                            " " +
+                            (user?.second_name || `Noname`)}
                         </h6>
                         <p className="mb-1">{user?.mobile}</p>
                         <p>{user?.email || "No email address configured"}</p>

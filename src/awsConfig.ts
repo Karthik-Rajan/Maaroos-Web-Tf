@@ -4,10 +4,10 @@
 const awsConfig = {
   aws_project_region: "ap-south-1",
   aws_cognito_identity_pool_id:
-    "ap-south-1:563c49da-03f5-45ed-baec-72d2736c1a6b",
+    "ap-south-1:943f82ac-4a44-4fab-8202-0bfb1b552d9c",
   aws_cognito_region: "ap-south-1",
-  aws_user_pools_id: "ap-south-1_fqvuDoWZl",
-  aws_user_pools_web_client_id: "4h5n8d0m17sqoqapdfo5jjb71i",
+  aws_user_pools_id: "ap-south-1_XrazkIUQ1",
+  aws_user_pools_web_client_id: "1cov02uaomeoinee9e3kb7lmi4",
   oauth: {},
   aws_cognito_username_attributes: [],
   aws_cognito_social_providers: [],

@@ -1,5 +1,6 @@
 const NOTSIGNIN = "You are NOT logged in";
 const SIGNEDIN = "You have logged-in successfully";
+const RESET = "Password has been reset successfully";
 const SIGNEDOUT = "You have logged-out successfully";
 const OTPSENT = "OTP has sent to your number";
 const NOUSER = "You are not registered";
@@ -22,4 +23,5 @@ export {
   VERIFYNUMBER,
   USERSIGNUP,
   WRONGUSER,
+  RESET,
 };

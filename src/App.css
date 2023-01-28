@@ -19,6 +19,7 @@ Version: 1.0
 -- Track Order Page
 -- Footer
 -- Mobile Media
+-- Unauthorized
 */
 
 /* Header */
@@ -127,10 +128,13 @@ h6 {
   padding-left: 1px;
 }
 /* login/Register */
+.alertHide{
+  display: none;
+}
 .otp-group {
   display: flex;
   width: 100%;
-  max-width: 360px;
+  /* max-width: 360px; */
   column-gap: 10px;
 }
 
@@ -572,6 +576,12 @@ small {
 .css-1heuipj{
  color :  #d82926
 }
+.mob-sideFilterBar{
+  display: none;
+}
+.desk-sideFilterBar{
+  display: block;
+}
 /* .productsListingW75{
  width : 75%;
  position: relative;
@@ -592,6 +602,7 @@ small {
   margin-right: 30px;
   text-decoration: underline !important;
   cursor: pointer;
+  display: none;
 }
 .applyFilterBtn{
   width: 100%;
@@ -1217,6 +1228,19 @@ footer {
 /* Mobile Media */
 /* Extra small devices (portrait phones, less than 576px) */
 @media (max-width: 575.98px) {
+  .mob-sideFilterBar{
+    width: 90%;
+    position: fixed;
+    z-index: 999999 !important;
+    top: 0;
+    display: block;
+  }
+  .desk-sideFilterBar{
+    display: none;
+  }
+  .applyFilter{
+    display: block;
+  }
   .m-none {
     display: none;
   }
@@ -1417,6 +1441,19 @@ footer {
 }
 /* Small devices (landscape phones, 576px and up) */
 @media (min-width: 576px) and (max-width: 767.98px) {
+  .mob-sideFilterBar{
+    width: 90%;
+    position: fixed;
+    z-index: 999999 !important;
+    top: 0;
+    display: block;
+  }
+  .desk-sideFilterBar{
+    display: none;
+  }
+  .applyFilter{
+    display: block;
+  }
   .homepage-add-section .col-md-3.col-6 {
     padding: 2px 2px;
   }
@@ -1687,4 +1724,9 @@ footer {
 }
 /* Extra large devices (large desktops, 1200px and up) */
 @media (min-width: 1200px) {
+}
+
+/** UnAuthorized **/
+.unauthorized-img{
+  width : 300px !important;
 }

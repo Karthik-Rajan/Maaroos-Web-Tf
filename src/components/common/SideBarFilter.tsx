@@ -7,7 +7,12 @@ import QuickFilter from "./QuickFilter";
 const SideBarFilter = (props: any) => {
   return (
     <>
-      <div className="sideBarFilter filters shadow-sm rounded bg-white mb-4">
+      <div
+        className={
+          props.className +
+          ` sideBarFilter filters shadow-sm rounded bg-white mb-4`
+        }
+      >
         <div className="filters-header border-bottom pl-4 pr-4 pt-3 pb-3">
           <h5 className="m-0">Filter By</h5>
           {/* <span
@@ -18,14 +23,16 @@ const SideBarFilter = (props: any) => {
           >
             reset
           </span> */}
-          <span
-            className="close"
-            onClick={() => {
-              props.onClose(false);
-            }}
-          >
-            close
-          </span>
+          {props.onClose && (
+            <span
+              className="close"
+              onClick={() => {
+                props.onClose(false);
+              }}
+            >
+              close
+            </span>
+          )}
           <button
             type="button"
             className="btn btn-primary applyFilterBtn"

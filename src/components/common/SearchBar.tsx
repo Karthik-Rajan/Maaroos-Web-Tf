@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { connect } from "react-redux";
 import Select2 from "react-select2-wrapper";
 import { Form } from "react-bootstrap";
 import Icofont from "react-icofont";
-import { Link } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { Link, useNavigate } from "react-router-dom";
 import { usePlacesWidget } from "react-google-autocomplete";
 import Geocode from "react-geocode";
 
@@ -15,14 +16,19 @@ const SearchBar = (props: any) => {
   //ROOFTOP, RANGE_INTERPOLATED, GEOMETRIC_CENTER, APPROXIMATE
   Geocode.setLocationType("GEOMETRIC_CENTER");
 
-  const [location, setLocation] = useState(props?.location?.name || "");
-  const [coordinates, setCoordinates] = useState({});
-  const [pageUrl, setPageUrl] = useState("listing");
+  const [locationTemp, setLocationTemp] = useState("");
+  const [location, setLocation] = useState("");
+  const [coordinatesTemp, setCoordinatesTemp] = useState({ lat: 0, lng: 0 });
+  const [coordinates, setCoordinates] = useState({ lat: 0, lng: 0 });
+  // const [pageUrl, setPageUrl] = useState("/listing");
   const [quickSearch, setQuickSearch] = useState(true);
+  const searchForm = useRef();
+  const { handleSubmit } = useForm();
+  const navigate = useNavigate();
 
   let input = {};
 
-  const { ref } = usePlacesWidget({
+  const { ref }: any = usePlacesWidget({
     apiKey: `AIzaSyBhVIXKdp4FXoHLxNqKoPHpjZQk7sc0-pI`,
     onPlaceSelected: (place) => {
       fetchAddress(place, true);
@@ -33,20 +39,23 @@ const SearchBar = (props: any) => {
     },
   });
 
+  const onSubmit = (data: any) => {
+    onSearch();
+  };
+
   useEffect(() => {
-    if (window.location.pathname === "/listing") {
-      setPageUrl("");
-    }
+    // if (window.location.pathname === "/listing") {
+    //   setPageUrl("");
+    // }
     if (window.location.pathname === "/") {
       setQuickSearch(false);
     }
     props.vendor.then((res: any) => {
       input = res.search;
     });
-  });
+  }, []);
 
   const fetchAddress = (response: any, isPlaceApi = false) => {
-    console.log("MAP", response);
     let city = "",
       state = "",
       locality = "",
@@ -73,7 +82,7 @@ const SearchBar = (props: any) => {
         }
       }
     }
-    setLocation(
+    setLocationTemp(
       (locality ? locality + "," : "") +
         (city ? city + "," : "") +
         state +
@@ -82,12 +91,15 @@ const SearchBar = (props: any) => {
     );
 
     if (isPlaceApi) {
-      setCoordinates({
-        lat: addr.geometry.location.lat(),
-        lng: addr.geometry.location.lng(),
+      const qLat = addr.geometry.location.lat();
+      const qLng = addr.geometry.location.lng();
+      setCoordinatesTemp({
+        lat: qLat,
+        lng: qLng,
       });
     } else {
-      setCoordinates(addr.geometry.location);
+      const geoMet = addr.geometry.location;
+      setCoordinatesTemp(geoMet);
     }
   };
 
@@ -113,18 +125,35 @@ const SearchBar = (props: any) => {
   };
 
   const onSearch = () => {
-    props.dispatch({
-      type: "LOCATION",
-      payload: {
-        search: { ...input, ...coordinates },
-        location: { coordinates, name: location },
-      },
-    });
+    if (!ref.current.value || !coordinatesTemp.lat || !coordinatesTemp.lng) {
+      ref.current.focus();
+      // setPageUrl("/");
+      return false;
+    }
+
+    setCoordinates(coordinatesTemp);
+    setLocation(locationTemp);
+
+    window.location.href =
+      `/listing?q=` + coordinatesTemp.lat + `,` + coordinatesTemp.lng;
+
+    // props.dispatch({
+    //   type: "LOCATION",
+    //   payload: {
+    //     search: { ...input, ...coordinates },
+    //     location: { coordinates, name: location },
+    //   },
+    // });
   };
 
   return (
     <div className="homepage-search-form">
-      <Form className="form-noborder">
+      <Form
+        ref={searchForm}
+        id="searchForm"
+        className="form-noborder"
+        onSubmit={handleSubmit(onSubmit)}
+      >
         <div className="form-row">
           {quickSearch && (
             <Form.Group className="col-lg-3 col-md-3 col-sm-12">
@@ -152,9 +181,9 @@ const SearchBar = (props: any) => {
               placeholder="Enter your delivery location"
               size="lg"
               ref={ref}
-              value={location}
+              value={locationTemp}
               onChange={(event: any) => {
-                setLocation(event.target.value);
+                setLocationTemp(event.target.value);
               }}
             />
             <Link className="locate-me" to="#" onClick={onLocateHandler}>
@@ -163,7 +192,7 @@ const SearchBar = (props: any) => {
           </Form.Group>
           <Form.Group className="col-lg-2 col-md-2 col-sm-12">
             <Link
-              to={pageUrl}
+              to={""}
               className="btn btn-primary btn-block btn-lg btn-gradient"
               onClick={onSearch}
             >
