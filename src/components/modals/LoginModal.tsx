@@ -84,7 +84,6 @@ const LoginModal = (props: any) => {
         window.location.reload();
       })
       .catch((e) => {
-        console.log(e);
         if (e.code === "NotAuthorizedException") {
           setMessage(WRONGUSER);
         } else if (e.code === "UserNotFoundException") {
@@ -121,7 +120,6 @@ const LoginModal = (props: any) => {
           setMobileDisabled(true);
         })
         .catch((e) => {
-          console.log(e);
           setInfo("");
           setOtpBtn(false);
           if (e.code === "UsernameExistsException") {
@@ -137,7 +135,6 @@ const LoginModal = (props: any) => {
 
   const onVerify = (userName: any, signUpOtp: any, signUpPassword: any) => {
     Auth.confirmSignUp(userName, signUpOtp).then((res) => {
-      console.log(res);
       setInfo(USERSIGNUP);
       logIn(userName, signUpPassword);
     });
@@ -168,7 +165,6 @@ const LoginModal = (props: any) => {
     if (forgotOtp.length > 0) {
       Auth.forgotPasswordSubmit(forgotMobile, forgotOtp, forgotPassword)
         .then((res) => {
-          console.log(res);
           setInfo(RESET);
           setForm("signin");
         })
@@ -179,7 +175,6 @@ const LoginModal = (props: any) => {
     } else {
       Auth.forgotPassword(forgotMobile)
         .then((res) => {
-          console.log(res);
           setForgotOtpBtn(true);
           setShowForgotPassword(true);
         })

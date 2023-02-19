@@ -18,8 +18,6 @@ class Checkout extends React.Component {
 
     hideAddressModal = () => this.setState({ showAddressModal: false });
     getQty = ({id,quantity}) => {
-    	//console.log(id);
-    	//console.log(quantity);
 	}
 
 	render() {

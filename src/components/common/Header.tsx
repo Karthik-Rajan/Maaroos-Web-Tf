@@ -67,14 +67,14 @@ function Header(props: any) {
                   Home <span className="sr-only">(current)</span>
                 </Nav.Link>
 
-                <Nav.Link
+                {/* <Nav.Link
                   eventKey={1}
                   as={NavLink}
                   activeclassname="active"
                   to="/listing"
                 >
                   Listing
-                </Nav.Link>
+                </Nav.Link> */}
 
                 {!user ? (
                   <>

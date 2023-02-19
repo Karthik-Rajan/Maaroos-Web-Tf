@@ -39,7 +39,6 @@ const reducer = async (state = initialState, action: any) => {
         return res;
       });
     case "DETAIL":
-      console.log("action detail");
       let detail = {};
       await vendorDetail({ ...action.payload }).then((res: any) => {
         detail = res;
@@ -51,7 +50,6 @@ const reducer = async (state = initialState, action: any) => {
         return res;
       });
     default:
-      console.log("action", action);
       return state;
   }
 };

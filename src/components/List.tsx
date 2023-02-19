@@ -36,23 +36,16 @@ function List(props: any) {
   useEffect(() => {
     props.vendor
       .then((res: any) => {
-        console.log(`VENDOR res`, res);
         setList(res.list);
         setLoading(false);
         location = res.location;
-        // if (input) {
-        //   console.log("setting", q);
-        //   setSearch({ ...input });
-        // }
         input = res.search;
       })
       .catch((err: any) => {
-        console.log("Error on Listing Page", err);
         setList([]);
         setLoading(false);
       });
 
-    console.log(q);
     const coOrds = q ? q.split(",") : null;
     if (coOrds) {
       input = {
@@ -69,7 +62,6 @@ function List(props: any) {
   }, [reload]);
 
   const onApplyFilter = async () => {
-    console.log("Filters", search);
     callVendorList();
     reload++;
   };
@@ -105,7 +97,7 @@ function List(props: any) {
         <Container fluid className="productListingContainer">
           <SideBarHead
             onClose={toggleSideBar}
-            listLength={list.length}
+            listLength={list ? list.length : 0}
             sideBar={sideBar}
             search={search}
           />
@@ -122,7 +114,7 @@ function List(props: any) {
             </Col>
             <Col md={9}>
               <CategoriesCarousel />
-              <ProductItems products={list} loading={loading} />
+              <ProductItems products={list ? list : []} loading={loading} />
             </Col>
           </Row>
         </Container>

@@ -7,7 +7,7 @@ import { Image } from "react-bootstrap";
 const ProductItems = (props: any) => {
   const products: any = [];
   {
-    props.products.length &&
+    props.products && props.products.length &&
       props.products?.forEach((product: any) => {
         products.push(
           <Col md={3} sm={4} key={product.id} className="mb-4 pb-2">

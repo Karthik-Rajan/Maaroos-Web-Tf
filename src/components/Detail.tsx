@@ -26,60 +26,85 @@ import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
+import moment from "moment";
 import NoAccess from "./NoAccess";
-let reload = 0;
-const Detail = (props: any) => {
-  console.log(props);
+import { CalendarInput, Types } from "../constants/types";
 
-  const { dispatch, vendorDetail, isAuthenticated, showModal } = props;
+let reload = 0;
+
+const Detail = (props: any) => {
+  const { dispatch, vendorDetail, isAuthenticated } = props;
   let { vId } = useParams();
+
+  const todayFrom = moment().startOf('month').format('YYYY-MM-DD 00:00:00');
+  const todayTo = moment().endOf('month').format('YYYY-MM-DD 23:59:59');
 
   const [detail, setDetail] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [calendarInput, setCalendarInput] = useState({});
+  const [calendarInput, setCalendarInput] = useState<CalendarInput>({ from: todayFrom, to: todayTo, types: [] });
+  const [calendarEvents, setCalendarEvents] = useState([]);
 
   const reviewUser = [];
   const [users] = useState([]);
 
   useEffect(() => {
-    console.log("count", reload);
-    if (reload === 0) {
-      dispatch({ type: "DETAIL", payload: { vId } });
-      reload++;
-    }
-    if (isAuthenticated)
-      dispatch({
-        type: "MY_CALENDAR",
-        payload: { ...calendarInput, vId },
-      });
+    if (reload === 0) dispatch({ type: "DETAIL", payload: { vId } });
 
-    if (reload > 0) {
-      vendorDetail.then((res: any) => {
-        console.log("detail res", res.detail);
-        if (res.detail.length != 0) {
-          console.log("reloading");
-          // reload++;
-        }
+    if (reload === 1) dispatch({ type: "MY_CALENDAR", payload: { ...calendarInput, vId } });
+
+    reload++;
+  }, [reload]);
+
+  useEffect(() => {
+    vendorDetail.then((res: any) => {
+
+      if (res.type === 'DETAIL') {
         setDetail(res.detail);
-        setCalendarInput({ ...calendarInput, types: ["BF", "LN"] });
-        reviewUser.push({
-          name: res.detail.first_name,
-          image: res.detail.profile_img,
-          url: "#",
-        });
+
+        if (res.detail) {
+          reviewUser.push({
+            name: res.detail.first_name,
+            image: res.detail.profile_img,
+            url: "#",
+          });
+        }
+
         setIsLoading(false);
-      });
-    }
+      }
+    });
   }, [reload]);
 
   const getQty = ({ id, quantity }: any) => {
-    //console.log(id);
-    //console.log(quantity);
   };
   const getStarValue = ({ value }: any) => {
-    console.log(value);
-    //console.log(quantity);
   };
+
+  const renderEventContent = (eventContent: any) => {
+    let { title } = eventContent.event;
+    const { timeText } = eventContent
+    const fullTitle = title === Types.BF ? 'Breakfast' : (title === Types.LN ? 'Lunch' : 'Dinner');
+    return (
+      <>
+        <i className={title + `-title`}>{fullTitle + ` (` + timeText + `m)`}</i>
+      </>
+    )
+  }
+
+  const setFilterInput = (type: Types) => {
+    let updatedInputs = calendarInput;
+    if (calendarInput.types.includes(type)) {
+      delete calendarInput.types[calendarInput.types.indexOf(type)];
+      updatedInputs = { ...calendarInput }
+    }
+    else {
+      updatedInputs = { ...calendarInput, types: [...calendarInput.types, type] };
+    }
+    setCalendarInput({ ...updatedInputs });
+    dispatch({
+      type: "MY_CALENDAR",
+      payload: { ...updatedInputs, vId },
+    });
+  }
 
   return (
     <>
@@ -192,89 +217,59 @@ const Detail = (props: any) => {
                       <Tab.Content className="h-100">
                         <Tab.Pane eventKey="zero">
                           {/* <Row> */}
-                          {isAuthenticated && (
-                            <FullCalendar
-                              plugins={[
-                                dayGridPlugin,
-                                timeGridPlugin,
-                                interactionPlugin,
-                              ]}
-                              headerToolbar={{
-                                left: "prev,next today",
-                                center: "title",
-                                right: "dayGridMonth,timeGridWeek,timeGridDay",
-                              }}
-                              initialView="dayGridMonth"
-                              editable={true}
-                              selectable={true}
-                              selectMirror={true}
-                              dayMaxEvents={true}
-                              weekends={true}
-                              // weekNumbers={true}
-                              themeSystem={"bootstrap5"}
-                              dayHeaders={true}
-                              initialEvents={[
-                                {
-                                  id: "1",
-                                  title: "All-day event",
-                                  start: "2022-12-27 18:50:00",
-                                },
-                                {
-                                  id: "2",
-                                  title: "Timed event",
-                                  start: "2022-12-23 18:50:00",
-                                },
-                                {
-                                  id: "1",
-                                  title: "All-day event",
-                                  start: "2022-12-23 18:50:00",
-                                },
-                                {
-                                  id: "2",
-                                  title: "Timed event",
-                                  start: "2022-12-23 18:50:00",
-                                },
-                                {
-                                  id: "1",
-                                  title: "All-day event",
-                                  start: "2022-12-23 18:50:00",
-                                },
-                                {
-                                  id: "2",
-                                  title: "Timed event",
-                                  start: "2022-12-23 18:50:00",
-                                },
-                                {
-                                  id: "1",
-                                  title: "All-day event",
-                                  start: "2022-12-23 18:50:00",
-                                },
-                                {
-                                  id: "2",
-                                  title: "Timed event",
-                                  start: "2022-12-23 18:50:00",
-                                },
-                              ]} // alternatively, use the `events` setting to fetch from a feed
-                              select={() => {
-                                console.log("select");
-                              }}
-                              eventContent={() => {}} // custom render function
-                              eventClick={() => {
-                                console.log("eventClick");
-                              }}
-                              eventsSet={() => {
-                                console.log("eventsSet");
-                              }} // called after events are initialized/added/changed/removed
-                              /* you can update a remote database when these fire:
-          eventAdd={function(){}}
-          eventChange={function(){}}
-          eventRemove={function(){}}
-          */
-                            />
-                          )}
-                          {!isAuthenticated && (
-                            <NoAccess detailPage={true} showModal={showModal} />
-                          )}
+                          {/* {isAuthenticated && ( */}
+                          <FullCalendar
+                            plugins={[
+                              dayGridPlugin,
+                              timeGridPlugin,
+                              interactionPlugin,
+                            ]}
+                            eventBackgroundColor={'white'}
+                            // eventTextColor={ }
+                            headerToolbar={{
+                              left: "prev,next today",
+                              center: "title",
+                              right: "dayGridMonth,timeGridWeek,timeGridDay",
+                            }}
+                            initialView="dayGridMonth"
+                            editable={true}
+                            lazyFetching={true}
+                            selectable={true}
+                            selectMirror={true}
+                            dayMaxEvents={true}
+                            weekends={true}
+                            // weekNumbers={true}
+                            themeSystem={"bootstrap5"}
+                            dayHeaders={true}
+                            // initialEvents={ } // alternatively, use the `events` setting to fetch from a feed
+                            events={() => {
+                              return vendorDetail.then((data: any) => {
+                                if (data.type === 'MY_CALENDAR') {
+                                  return data.detail;
+                                }
+                                return [];
+                              })
+                            }}
+                            select={() => {
+                              console.log("select");
+                            }}
+                            eventContent={renderEventContent} // custom render function
+                            eventClick={() => {
+                              console.log("eventClick");
+                            }}
+                            eventsSet={() => {
+
+                            }} // called after events are initialized/added/changed/removed
+                          /* you can update a remote database when these fire:
+      eventAdd={function(){}}
+      eventChange={function(){}}
+      eventRemove={function(){}}
+      */
+                          />
+                          {/* )} */}
+                          {/* {!isAuthenticated && ( */}
+                          {/* <NoAccess detailPage={true} showModal={showModal} /> */}
+                          {/* )} */}
                         </Tab.Pane>
                         <Tab.Pane eventKey="first">
                           <h5 className="mb-4">Recommended</h5>
@@ -803,18 +798,24 @@ const Detail = (props: any) => {
                     <div className="bg-white rounded shadow-sm text-white mb-4 p-4 clearfix restaurant-detailed-earn-pts card-icon-overlap">
                       <div className="border-btn-main mb-4">
                         <h5 className="mb-4">Select Types</h5>
-                        <Link className="border-btn text-success mr-2" to="#">
-                          <Icofont icon="check-circled" /> Breakfast
+                        <Link className={calendarInput.types.includes(Types.BF) ? `border-btn mr-2 greenFilter` : 'border-btn mr-2 grayFilter'} to="#" onClick={() => {
+                          setFilterInput(Types.BF);
+                        }}>
+                          <Icofont icon={calendarInput.types.includes(Types.BF) ? `check-circled` : `close-circled`} /> Breakfast
                         </Link>
-                        <Link className="border-btn mr-2" to="#">
-                          <Icofont icon="close-circled" /> Lunch
+                        <Link className={calendarInput.types.includes(Types.LN) ? `border-btn mr-2 greenFilter` : 'border-btn mr-2 grayFilter'} to="#" onClick={() => {
+                          setFilterInput(Types.LN);
+                        }}>
+                          <Icofont icon={calendarInput.types.includes(Types.LN) ? `check-circled` : `close-circled`} /> Lunch
                         </Link>
-                        <Link className="border-btn mr-2" to="#">
-                          <Icofont icon="check-circled" /> Dinner
+                        <Link className={calendarInput.types.includes(Types.DR) ? `border-btn mr-2 greenFilter` : 'border-btn mr-2 grayFilter'} to="#" onClick={() => {
+                          setFilterInput(Types.DR);
+                        }}>
+                          <Icofont icon={calendarInput.types.includes(Types.DR) ? `check-circled` : `close-circled`} /> Dinner
                         </Link>
-                        <Link className="border-btn mr-2" to="#">
-                          <Icofont icon="check-circled" /> Snacks
-                        </Link>
+                        {/* <Link className="border-btn mr-2" to="#">
+                          <Icofont icon="close-circled" /> Snacks
+                        </Link> */}
                       </div>
                     </div>
                     {/* <div className="bg-white rounded shadow-sm text-white mb-4 p-4 clearfix restaurant-detailed-earn-pts card-icon-overlap">
@@ -943,12 +944,14 @@ const Detail = (props: any) => {
             </section>
           </Tab.Container>
         </div>
-      )}
+      )
+      }
     </>
   );
 };
 
 function mapStateToProps(state: any) {
+  console.log(state);
   return {
     vendorDetail: state.vendor,
   };

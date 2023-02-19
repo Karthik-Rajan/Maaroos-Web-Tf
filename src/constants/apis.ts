@@ -12,9 +12,8 @@ export const authHeaders = (idToken: string = "") => {
   return {
     headers: {
       ...guestHeaders.headers,
-      Authorization: `${
-        `Bearer ` + !idToken ? localStorage.getItem("userIdToken") : idToken
-      }`,
+      Authorization: `${`Bearer ` + !idToken ? localStorage.getItem("userIdToken") : idToken
+        }`,
     },
   };
 };

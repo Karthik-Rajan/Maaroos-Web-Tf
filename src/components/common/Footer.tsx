@@ -4,9 +4,7 @@ import {Link} from 'react-router-dom';
 import {Row,Col,Container,Form,InputGroup,FormControl,Button,Image} from 'react-bootstrap';
 import FontAwesome from './FontAwesome';
 
-class Footer extends React.Component {
-
-	render() {
+const Footer = (props : any) => {
     	return (
     		<>
 			    {/* <section className="section pt-5 pb-5 text-center bg-white">
@@ -80,7 +78,7 @@ class Footer extends React.Component {
 			            </Row>
 			         </Container>
 			    </section>
-		      <section className={this.props.sectionclassName}>
+		      {/* <section className={this.props.sectionclassName}>
 		         <div className="container">
 		            <Row>
 		               <Col xs={12}>
@@ -177,18 +175,17 @@ class Footer extends React.Component {
 		               </Col>
 		            </Row>
 		         </div>
-		      </section>
+		      </section> */}
 		      <footer className="pt-4 pb-4 text-center">
 		         <Container>
-		            <p className="mt-0 mb-0">{this.props.copyrightText}</p>
-		            <small className="mt-0 mb-0"> Made In India <FontAwesome icon={this.props.madewithIconclassName} /> by
-		            <Link className="text-danger ml-1" target="_blank" to={`${this.props.firstLink}`}>{this.props.firstLinkText}</Link> <Link className="text-primary" target="_blank" to={this.props.secondLink}>{this.props.secondLinkText}</Link>
+		            <p className="mt-0 mb-0">{props.copyrightText}</p>
+		            <small className="mt-0 mb-0"> Made In India <FontAwesome icon={props.madewithIconclassName} /> by
+		            <Link className="text-danger ml-1" target="_blank" to={`${props.firstLink}`}>{props.firstLinkText}</Link> <Link className="text-primary" target="_blank" to={props.secondLink}>{props.secondLinkText}</Link>
 		            </small>
 		         </Container>
 		      </footer>
 		    </>
     	);
-    }
 }
 
 
@@ -219,7 +216,6 @@ Footer.defaultProps = {
 	secondLinkText: 'Maaroos Team',
 	secondLink: '/',
 }
-
 
 
 export default Footer;

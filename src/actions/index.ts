@@ -66,7 +66,7 @@ export const vendorDetail = async ({ vId }: any) => {
     });
 };
 
-export const fetchMySchedule = async ({ vId, types, from, to }: any) => {
+export const fetchMySchedule: any = async ({ vId, types, from, to, retry = true }: any) => {
   const response = { type: "MY_CALENDAR" };
   return await fetch(BASE_URL + `/` + vId + MY_CALENDAR, {
     ...methodProps("POST", { types, from, to }),
@@ -77,5 +77,13 @@ export const fetchMySchedule = async ({ vId, types, from, to }: any) => {
     })
     .then((data) => {
       return { ...response, detail: data };
+    })
+    .catch(async (err) => {
+      /** Retry Authentication */
+      if (retry) {
+        const user = await refreshAuth();
+        return await fetchMySchedule({ vId, types, from, to, retry: false });
+      }
+      console.log("User Login Err", err);
     });
 };

@@ -68,9 +68,8 @@ function Login() {
         phone_number: number,
       },
     })
-      .then((res) => console.log(res))
+      .then((res) => {})
       .catch((e) => {
-        console.log(e);
         setDisabled(false);
         setInfo("");
         if (e.code === "UserNotFoundException") {
@@ -109,10 +108,8 @@ function Login() {
   const reSend = () => {
     Auth.resendSignUp(number)
       .then((res) => {
-        console.log(res);
       })
       .catch((err) => {
-        console.log(err);
       });
   };
 

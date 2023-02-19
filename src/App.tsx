@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Routes, Route } from "react-router-dom";
 import dotenv from "dotenv";
-
 import Header from "./components/common/Header";
 import Footer from "./components/common/Footer";
 import Index from "./components/Index";
@@ -25,9 +24,12 @@ import "react-loading-skeleton/dist/skeleton.css";
 import "./App.css";
 import Auth from "@aws-amplify/auth";
 import LoginModal from "./components/modals/LoginModal";
+import useTitle from './components/common/useTitle';
 
 function App() {
   dotenv.config();
+
+  useTitle();
 
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [visible, setVisible] = useState(false);
@@ -59,9 +61,7 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route
           path="/listing/:vId/detail"
-          element={
-            <Detail isAuthenticated={isAuthenticated} showModal={showModal} />
-          }
+          element={<Detail {...showModal}/>}
         />
         <Route path="*" element={<NotFound />} />
         <Route

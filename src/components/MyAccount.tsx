@@ -7,14 +7,11 @@ import Favourites from "./myaccount/Favourites";
 import Payments from "./myaccount/Payments";
 import Addresses from "./myaccount/Addresses";
 import EditProfileModal from "./modals/EditProfileModal";
-// import Amplify from "@aws-amplify/core";
 import Auth from "@aws-amplify/auth";
-// import awsConfig from "./../awsConfig";
 import TrackOrder from "./TrackOrder";
 import { connect } from "react-redux";
 
 const MyAccount = (props: any) => {
-  // Amplify.configure(awsConfig);
   const [user, setUser] = useState<any>({});
   const [showEditProfile, setShowEditProfile] = useState(false);
   const [page, setPage] = useState("orders");
