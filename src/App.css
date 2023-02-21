@@ -868,6 +868,19 @@ iframe.position-absolute {
   color: green;
 }
 
+.cancelSchedule {
+  width: 50%;
+  float: left;
+}
+
+.foodTypeMultiSelector {
+  width: 100%;
+}
+
+#foodTypeLabel {
+  background-color: white;
+}
+
 .grayFilter {
   color: grey
 }

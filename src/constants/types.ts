@@ -9,3 +9,9 @@ export type CalendarInput = {
     to: string,
     types: Types[]
 }
+
+export enum TypesName {
+    BF = 'Breakfast',
+    LN = 'Lunch',
+    DR = 'Dinner'
+}

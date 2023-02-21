@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link, useParams } from "react-router-dom";
 import {
   Row,
@@ -12,6 +12,7 @@ import {
   Image,
   Badge,
 } from "react-bootstrap";
+import { Box, FormControl, InputLabel, MenuItem, Select, TextField } from '@mui/material';
 import ItemsCarousel from "./common/ItemsCarousel";
 import GalleryCarousel from "./common/GalleryCarousel";
 import BestSeller from "./common/BestSeller";
@@ -26,18 +27,32 @@ import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
-import moment from "moment";
 import NoAccess from "./NoAccess";
-import { CalendarInput, Types } from "../constants/types";
+import dayjs from 'dayjs';
+import { CalendarInput, Types, TypesName } from "../constants/types";
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { MobileDatePicker } from '@mui/x-date-pickers/MobileDatePicker';
+import { useForm } from 'react-hook-form';
+
 
 let reload = 0;
 
 const Detail = (props: any) => {
+
   const { dispatch, vendorDetail, isAuthenticated } = props;
   let { vId } = useParams();
 
-  const todayFrom = moment().startOf('month').format('YYYY-MM-DD 00:00:00');
-  const todayTo = moment().endOf('month').format('YYYY-MM-DD 23:59:59');
+  const todayFrom = dayjs().startOf('month').format('YYYY-MM-DD 00:00:00');
+  const todayTo = dayjs().endOf('month').format('YYYY-MM-DD 23:59:59');
+  const minDate = dayjs().add(1, 'week').format('YYYY-MM-DD');
+  const maxDate = dayjs(minDate).add(2, 'weeks').format('YYYY-MM-DD');
+  const scheduleForm = useRef();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
 
   const [detail, setDetail] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -46,6 +61,9 @@ const Detail = (props: any) => {
   const [section, setSection] = useState('listing');
   const reviewUser = [];
   const [users] = useState([]);
+  const [foodTypes, setFoodTypes] = useState<string[]>([]);
+  const [fromDate, setFromDate] = useState<any>('');
+  const [toDate, setToDate] = useState<any>('');
 
   useEffect(() => {
     if (reload === 0) dispatch({ type: "DETAIL", payload: { vId } });
@@ -102,6 +120,11 @@ const Detail = (props: any) => {
       type: "MY_CALENDAR",
       payload: { ...updatedInputs, vId },
     });
+  }
+
+  const onScheduleSubmit = (data: any) => {
+    console.log(data);
+    console.log(errors)
   }
 
   return (
@@ -223,7 +246,6 @@ const Detail = (props: any) => {
                               interactionPlugin,
                             ]}
                             eventBackgroundColor={'white'}
-                            // eventTextColor={ }
                             headerToolbar={{
                               left: "prev,next today",
                               center: "title",
@@ -236,10 +258,8 @@ const Detail = (props: any) => {
                             selectMirror={true}
                             dayMaxEvents={true}
                             weekends={true}
-                            // weekNumbers={true}
                             themeSystem={"bootstrap5"}
                             dayHeaders={true}
-                            // initialEvents={ } // alternatively, use the `events` setting to fetch from a feed
                             events={() => {
                               return vendorDetail.then((data: any) => {
                                 if (data.type === 'MY_CALENDAR') {
@@ -250,6 +270,8 @@ const Detail = (props: any) => {
                             }}
                             select={() => {
                               setSection('addEvent');
+                              setFromDate(minDate);
+                              setToDate(minDate);
                             }}
                             eventContent={renderEventContent} // custom render function
                             eventClick={() => {
@@ -814,70 +836,85 @@ const Detail = (props: any) => {
                       </div>
                       }
                       {section === 'addEvent' && <div>
-                        <label>Schedule your food</label>
-                        <Form>
+                        <h5 className="mb-4">Add Schedule</h5>
+                        <Form ref={scheduleForm} id="scheduleForm" onSubmit={handleSubmit(onScheduleSubmit)}>
                           <Row>
                             <Col sm={6}>
-                              <Form.Group>
-                                <Form.Label>From Date</Form.Label>
-                                <Form.Control
-                                  type="text"
-                                  placeholder="Enter Full Name"
+                              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                <MobileDatePicker
+                                  minDate={minDate}
+                                  maxDate={maxDate}
+                                  disablePast
+                                  label="From Date"
+                                  value={fromDate}
+                                  onChange={(newValue) => {
+                                    setFromDate(newValue);
+                                  }}
+                                  renderInput={(params) => <TextField {...params} {...register("fromDate", {
+                                    required: `From date is required`,
+                                  })} />}
                                 />
-                              </Form.Group>
+                              </LocalizationProvider>
                             </Col>
                             <Col sm={6}>
-                              <Form.Group>
-                                <Form.Label>To Date</Form.Label>
-                                <Form.Control
-                                  type="text"
-                                  placeholder="Enter Email address"
+                              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                <MobileDatePicker
+                                  minDate={minDate}
+                                  maxDate={maxDate}
+                                  disablePast
+                                  label="To Date"
+                                  value={toDate}
+                                  onChange={(newValue) => {
+                                    setToDate(newValue);
+                                  }}
+                                  renderInput={(params) => <TextField {...params} {...register("toDate", {
+                                    required: `To date is required`,
+                                  })} />}
                                 />
-                              </Form.Group>
+                              </LocalizationProvider>
                             </Col>
                           </Row>
+                          <br />
                           <Row>
-                            <Col sm={4}>
-                              <Form.Check
-                                custom
-                                type="checkbox"
-                                id="custom-cb6"
-                                label={`BF`}
-                              />
-                            </Col>
-                            <Col sm={4}>
-                              <Form.Check
-                                custom
-                                type="checkbox"
-                                defaultChecked={true}
-                                id="custom-cb6"
-                                label={
-                                  <React.Fragment>
-                                    American <small className="text-black-50">156</small>
-                                  </React.Fragment>
-                                }
-                              />
-                            </Col>
-                            <Col sm={4}>
-                              <Form.Check
-                                custom
-                                type="checkbox"
-                                defaultChecked={true}
-                                id="custom-cb6"
-                                label={
-                                  <React.Fragment>
-                                    American <small className="text-black-50">156</small>
-                                  </React.Fragment>
-                                }
-                              />
+                            <Col sm={12}>
+                              <FormControl className="foodTypeMultiSelector">
+                                <InputLabel id="foodTypeLabel">Select Food Types</InputLabel>
+                                <Select
+                                  multiple={true}
+                                  value={foodTypes}
+                                  onChange={(event) => {
+                                    const { target: { value } } = event;
+                                    setFoodTypes(
+                                      typeof value === 'string' ? value.split(',') : value,
+                                    );
+                                  }}
+                                // {...register("foodTypeMulti", {
+                                //   required: `From date is required`,
+                                // })}
+                                >
+                                  <MenuItem key={Types.BF} value={Types.BF}>{TypesName.BF}</MenuItem>
+                                  <MenuItem key={Types.LN} value={Types.LN}>{TypesName.LN}</MenuItem>
+                                  <MenuItem key={Types.DR} value={Types.DR}>{TypesName.DR}</MenuItem>
+                                </Select>
+                              </FormControl>
                             </Col>
                           </Row>
-                          <Form.Group className="text-right">
-                            <Button variant="primary" type="button">
+                          <br />
+                          <Form.Group className="text-left cancelSchedule">
+                            <Button variant="outline-primary" type="button" onClick={() => {
+                              setSection(`listing`);
+                            }}>
                               {" "}
-                              Submit{" "}
+                              Cancel{" "}
                             </Button>
                           </Form.Group>
+                          <Form.Group className="text-right">
+                            <Button variant="primary" type="submit">
+                              {" "}
+                              Add Schedule{" "}
+                            </Button>
+                          </Form.Group>
+                          {console.log(errors)}
                         </Form>
                       </div>
                       }
