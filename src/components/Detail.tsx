@@ -43,7 +43,7 @@ const Detail = (props: any) => {
   const [isLoading, setIsLoading] = useState(true);
   const [calendarInput, setCalendarInput] = useState<CalendarInput>({ from: todayFrom, to: todayTo, types: [] });
   const [calendarEvents, setCalendarEvents] = useState([]);
-
+  const [section, setSection] = useState('listing');
   const reviewUser = [];
   const [users] = useState([]);
 
@@ -57,11 +57,9 @@ const Detail = (props: any) => {
 
   useEffect(() => {
     vendorDetail.then((res: any) => {
-
-      if (res.type === 'DETAIL') {
+      if (res && res.type === 'DETAIL') {
         setDetail(res.detail);
-
-        if (res.detail) {
+        if (res && res.detail) {
           reviewUser.push({
             name: res.detail.first_name,
             image: res.detail.profile_img,
@@ -251,7 +249,7 @@ const Detail = (props: any) => {
                               })
                             }}
                             select={() => {
-                              console.log("select");
+                              setSection('addEvent');
                             }}
                             eventContent={renderEventContent} // custom render function
                             eventClick={() => {
@@ -796,7 +794,7 @@ const Detail = (props: any) => {
                   </Col>
                   <Col md={4}>
                     <div className="bg-white rounded shadow-sm text-white mb-4 p-4 clearfix restaurant-detailed-earn-pts card-icon-overlap">
-                      <div className="border-btn-main mb-4">
+                      {section === 'listing' && <div className="border-btn-main mb-4">
                         <h5 className="mb-4">Select Types</h5>
                         <Link className={calendarInput.types.includes(Types.BF) ? `border-btn mr-2 greenFilter` : 'border-btn mr-2 grayFilter'} to="#" onClick={() => {
                           setFilterInput(Types.BF);
@@ -813,10 +811,76 @@ const Detail = (props: any) => {
                         }}>
                           <Icofont icon={calendarInput.types.includes(Types.DR) ? `check-circled` : `close-circled`} /> Dinner
                         </Link>
-                        {/* <Link className="border-btn mr-2" to="#">
-                          <Icofont icon="close-circled" /> Snacks
-                        </Link> */}
                       </div>
+                      }
+                      {section === 'addEvent' && <div>
+                        <label>Schedule your food</label>
+                        <Form>
+                          <Row>
+                            <Col sm={6}>
+                              <Form.Group>
+                                <Form.Label>From Date</Form.Label>
+                                <Form.Control
+                                  type="text"
+                                  placeholder="Enter Full Name"
+                                />
+                              </Form.Group>
+                            </Col>
+                            <Col sm={6}>
+                              <Form.Group>
+                                <Form.Label>To Date</Form.Label>
+                                <Form.Control
+                                  type="text"
+                                  placeholder="Enter Email address"
+                                />
+                              </Form.Group>
+                            </Col>
+                          </Row>
+                          <Row>
+                            <Col sm={4}>
+                              <Form.Check
+                                custom
+                                type="checkbox"
+                                id="custom-cb6"
+                                label={`BF`}
+                              />
+                            </Col>
+                            <Col sm={4}>
+                              <Form.Check
+                                custom
+                                type="checkbox"
+                                defaultChecked={true}
+                                id="custom-cb6"
+                                label={
+                                  <React.Fragment>
+                                    American <small className="text-black-50">156</small>
+                                  </React.Fragment>
+                                }
+                              />
+                            </Col>
+                            <Col sm={4}>
+                              <Form.Check
+                                custom
+                                type="checkbox"
+                                defaultChecked={true}
+                                id="custom-cb6"
+                                label={
+                                  <React.Fragment>
+                                    American <small className="text-black-50">156</small>
+                                  </React.Fragment>
+                                }
+                              />
+                            </Col>
+                          </Row>
+                          <Form.Group className="text-right">
+                            <Button variant="primary" type="button">
+                              {" "}
+                              Submit{" "}
+                            </Button>
+                          </Form.Group>
+                        </Form>
+                      </div>
+                      }
                     </div>
                     {/* <div className="bg-white rounded shadow-sm text-white mb-4 p-4 clearfix restaurant-detailed-earn-pts card-icon-overlap">
                       <Image

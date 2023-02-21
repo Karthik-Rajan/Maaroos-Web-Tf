@@ -33,6 +33,7 @@ function Header(props: any) {
     if (user) {
       Auth.signOut();
       setUser(null);
+      localStorage.setItem('userIdToken', '');
     }
   };
 

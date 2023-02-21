@@ -56,6 +56,6 @@ export const refreshAuth = async () => {
     })
     .catch((err) => {
       Auth.signOut();
-      window.location.reload();
+      // window.location.reload();
     });
 };
