@@ -38,7 +38,8 @@ Version: 1.0
 
 /* Body */
 body {
-  background: #f3f7f8;
+  background: #f9f9f9;
+  /* #f3f7f8; */
   font-size: 13px;
   font-weight: 500;
 }
@@ -425,6 +426,11 @@ h6 {
 }
 
 /* Homepage */
+.stepTitle {
+  color: #706868;
+  font-style: italic;
+}
+
 .searchBanner {
   padding: 18px;
   background: linear-gradient(to bottom, white 2%, transparent 98%);
@@ -864,8 +870,13 @@ iframe.position-absolute {
 }
 
 /* detail */
+
 .greenFilter {
   color: green;
+}
+
+.myCalendar a {
+  color: black !important
 }
 
 .cancelSchedule {
@@ -887,23 +898,27 @@ iframe.position-absolute {
 
 .BF-title {
   background-color: transparent;
-  color: green;
-  font-size: 12px;
+  color: rgb(104, 101, 101);
+  font-size: 15px;
   font-weight: bolder;
 }
 
 .LN-title {
   background-color: transparent;
-  color: rgb(42 111 161);
-  font-size: 12px;
+  color: rgb(104, 101, 101);
+  font-size: 15px;
   font-weight: bolder;
 }
 
 .DR-title {
   background-color: transparent;
-  color: rgb(161 68 167);
-  font-size: 12px;
+  color: rgb(104, 101, 101);
+  font-size: 15px;
   font-weight: bolder;
+}
+
+.doneDelivery {
+  color: rgb(9, 104, 9)
 }
 
 .count-number .btn {
@@ -1300,10 +1315,6 @@ iframe.position-absolute {
   padding: unset !important;
 }
 
-.noPadding li a {
-  background-color: white !important;
-}
-
 .payments-item img.mr-3 {
   width: 47px;
 }
@@ -1492,6 +1503,14 @@ footer {
 /* Mobile Media */
 /* Extra small devices (portrait phones, less than 576px) */
 @media (max-width: 575.98px) {
+  .detailPageTabMenuDesK {
+    display: none;
+  }
+
+  .speedDialMenu {
+    display: unset;
+  }
+
   .mob-sideFilterBar {
     width: 90%;
     position: fixed;
@@ -1763,6 +1782,14 @@ footer {
 
 /* Small devices (landscape phones, 576px and up) */
 @media (min-width: 576px) and (max-width: 767.98px) {
+  .detailPageTabMenuDesK {
+    display: none;
+  }
+
+  .speedDialMenu {
+    display: unset;
+  }
+
   .mob-sideFilterBar {
     width: 90%;
     position: fixed;
@@ -1972,6 +1999,15 @@ footer {
 
 /* Medium devices (tablets, 768px and up) */
 @media (min-width: 768px) and (max-width: 991.98px) {
+
+  .detailPageTabMenuDesK {
+    display: flex;
+  }
+
+  .speedDialMenu {
+    display: none !important;
+  }
+
   .container {
     max-width: 100%;
   }
@@ -2119,10 +2155,26 @@ footer {
   .container {
     max-width: 100%;
   }
+
+  .speedDialMenu {
+    display: none !important;
+  }
+
+  .detailPageTabMenuDesK {
+    display: flex;
+  }
 }
 
 /* Extra large devices (large desktops, 1200px and up) */
-@media (min-width: 1200px) {}
+@media (min-width: 1200px) {
+  .speedDialMenu {
+    display: none !important;
+  }
+
+  .detailPageTabMenuDesK {
+    display: flex;
+  }
+}
 
 /** UnAuthorized **/
 .unauthorized-img {

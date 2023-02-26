@@ -61,11 +61,15 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route
           path="/listing/:vId/detail"
-          element={<Detail {...showModal}/>}
+          element={<Detail {...showModal} />}
         />
         <Route path="*" element={<NotFound />} />
         <Route
           path="/myaccount"
+          element={isAuthenticated ? <MyAccount /> : noAccess}
+        />
+        <Route
+          path="/myaccount/*"
           element={isAuthenticated ? <MyAccount /> : noAccess}
         />
         <Route

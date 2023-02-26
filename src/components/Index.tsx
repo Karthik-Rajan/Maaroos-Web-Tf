@@ -7,6 +7,7 @@ import ProductBox from "./home/ProductBox";
 import CardItem from "./common/CardItem";
 import SectionHeading from "./common/SectionHeading";
 import FontAwesome from "./common/FontAwesome";
+import { Image } from "react-bootstrap";
 
 function Index() {
   return (
@@ -14,38 +15,34 @@ function Index() {
       <TopSearch />
       <section className="section pt-5 pb-5 bg-white homepage-add-section">
         <Container>
+          <SectionHeading
+            heading="Enjoy Food in Simple Steps"
+            subHeading=""
+          />
           <Row>
-            <Col md={3} xs={6}>
-              <ProductBox
-                image="img/pro1.jpg"
-                imageClass="img-fluid rounded"
-                imageAlt="product"
-                linkUrl="#"
+            <Col md={4} xs={12}>
+              <Image
+                fluid
+                alt="Recharge Wallet"
+                src="img/steps/eWallet.jpg"
               />
+              <h5 className="text-center stepTitle">Recharge Wallet</h5>
             </Col>
-            <Col md={3} xs={6}>
-              <ProductBox
-                image="img/2.jpg"
-                imageClass="img-fluid rounded"
-                imageAlt="product"
-                linkUrl="#"
+            <Col md={4} xs={12}>
+              <Image
+                fluid
+                alt="Schedule & Subscribe"
+                src="img/steps/schedule.jpg"
               />
+              <h5 className="text-center stepTitle">Schedule & Subscribe</h5>
             </Col>
-            <Col md={3} xs={6}>
-              <ProductBox
-                image="img/pro3.jpg"
-                imageClass="img-fluid rounded"
-                imageAlt="product"
-                linkUrl="#"
+            <Col md={4} xs={12}>
+              <Image
+                fluid
+                alt="Delivery at Door"
+                src="img/steps/deliver.jpg"
               />
-            </Col>
-            <Col md={3} xs={6}>
-              <ProductBox
-                image="img/pro4.jpg"
-                imageClass="img-fluid rounded"
-                imageAlt="product"
-                linkUrl="#"
-              />
+              <h5 className="text-center stepTitle">Doorstep Delivery</h5>
             </Col>
           </Row>
         </Container>

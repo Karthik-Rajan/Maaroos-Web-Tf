@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { NavLink, Link } from "react-router-dom";
+import { NavLink, Link, BrowserRouter, Routes, Route } from "react-router-dom";
 import { Row, Col, Container, Image } from "react-bootstrap";
 import Offers from "./myaccount/Offers";
 import Orders from "./myaccount/Orders";
@@ -10,27 +10,37 @@ import EditProfileModal from "./modals/EditProfileModal";
 import Auth from "@aws-amplify/auth";
 import TrackOrder from "./TrackOrder";
 import { connect } from "react-redux";
+import Calendar from "./common/Calendar";
 
-const MyAccount = (props: any) => {
-  const [user, setUser] = useState<any>({});
+const MyAccount = ({ user, vendor, dispatch }: any) => {
+  const [users, setUsers] = useState<any>({});
   const [showEditProfile, setShowEditProfile] = useState(false);
   const [page, setPage] = useState("orders");
 
   const verifyAuth = () => {
     Auth.currentAuthenticatedUser()
-      .then((user) => {})
+      .then((user) => { })
       .catch((err) => {
         console.error(err);
         window.location.href = "/";
       });
   };
 
+  const pathMap: any = {
+    '/myaccount/orders': 'orders',
+    '/myaccount/offers': 'offers',
+    '/myaccount/calendar': 'myCalendar',
+    '/myaccount/favourites': 'favourites',
+    '/myaccount/payments': 'payments',
+  }
+
   useEffect(() => {
     verifyAuth();
-    props.dispatch({ type: "USER_PROFILE_FETCH", payload: {} });
-    props.user.then((data: any) => {
-      setUser(data.userData);
+    dispatch({ type: "USER_PROFILE_FETCH", payload: {} });
+    user.then((data: any) => {
+      setUsers(data.userData);
     });
+    setPage(pathMap[window.location.pathname]);
   }, []);
 
   return (
@@ -54,11 +64,11 @@ const MyAccount = (props: any) => {
                       />
                       <div className="osahan-user-media-body">
                         <h6 className="mb-2">
-                          {(user?.first_name || `NoName`) +
+                          {(users?.first_name || `NoName`) +
                             " " +
-                            (user?.second_name || `Noname`)}
+                            (users?.second_name || `Noname`)}
                         </h6>
-                        <p className="mb-1">{user?.mobile}</p>
+                        <p className="mb-1">{users?.mobile}</p>
                         <p>{user?.email || "No email address configured"}</p>
                         <p className="mb-0 text-black font-weight-bold">
                           <Link
@@ -77,7 +87,7 @@ const MyAccount = (props: any) => {
                   <li className="nav-item">
                     <NavLink
                       className="nav-link"
-                      to=""
+                      to="orders"
                       onClick={() => setPage("orders")}
                     >
                       <i className="icofont-food-cart"></i> Orders
@@ -86,7 +96,16 @@ const MyAccount = (props: any) => {
                   <li className="nav-item">
                     <NavLink
                       className="nav-link"
-                      to=""
+                      to="calendar"
+                      onClick={() => setPage("myCalendar")}
+                    >
+                      <i className="icofont-calendar"></i> My Calendar
+                    </NavLink>
+                  </li>
+                  <li className="nav-item">
+                    <NavLink
+                      className="nav-link"
+                      to="offers"
                       onClick={() => setPage("offers")}
                     >
                       <i className="icofont-sale-discount"></i> Offers
@@ -95,7 +114,7 @@ const MyAccount = (props: any) => {
                   <li className="nav-item">
                     <NavLink
                       className="nav-link"
-                      to=""
+                      to="favourites"
                       onClick={() => setPage("favourites")}
                     >
                       <i className="icofont-heart"></i> Favourites
@@ -104,7 +123,7 @@ const MyAccount = (props: any) => {
                   <li className="nav-item">
                     <NavLink
                       className="nav-link"
-                      to=""
+                      to="payments"
                       onClick={() => setPage("payments")}
                     >
                       <i className="icofont-credit-card"></i> Payments
@@ -113,7 +132,7 @@ const MyAccount = (props: any) => {
                   <li className="nav-item">
                     <NavLink
                       className="nav-link"
-                      to=""
+                      to="addresses"
                       onClick={() => setPage("addresses")}
                     >
                       <i className="icofont-location-pin"></i> Addresses
@@ -122,7 +141,7 @@ const MyAccount = (props: any) => {
                   <li className="nav-item">
                     <NavLink
                       className="nav-link"
-                      to=""
+                      to="track-order"
                       onClick={() => setPage("track-order")}
                     >
                       <i className="icofont-fast-delivery"></i> Track Order
@@ -132,24 +151,20 @@ const MyAccount = (props: any) => {
               </div>
             </Col>
             <Col md={9}>
-              {/* <BrowserRouter>
-                <Routes>
-                  <Route path="/myaccount/orders" element={<Orders />} />
-                  <Route path="/myaccount/offers" element={<Offers />} />
-                  <Route
-                    path="/myaccount/favourites"
-                    element={<Favourites />}
-                  />
-                  <Route path="/myaccount/payments" element={<Payments />} />
-                  <Route path="/myaccount/addresses" element={<Addresses />} />
-                </Routes>
-              </BrowserRouter> */}
-              {page === "orders" ? <Orders /> : ""}
-              {page === "offers" ? <Offers /> : ""}
-              {page === "favourites" ? <Favourites /> : ""}
-              {page === "payments" ? <Payments /> : ""}
-              {page === "addresses" ? <Addresses /> : ""}
-              {page === "track-order" ? <TrackOrder /> : ""}
+              {page === "orders" && <Orders />}
+              {page === "offers" && <Offers />}
+              {page === "favourites" && <Favourites />}
+              {page === "payments" && <Payments />}
+              {page === "addresses" && <Addresses />}
+              {page === "track-order" && <TrackOrder />}
+              {page === "myCalendar" && <div className='p-4 bg-white shadow-sm'><Calendar
+                vendorDetail={vendor}
+                setSection={false}
+                setFromDate={false}
+                setToDate={false}
+                dispatch={dispatch}
+                vId={`all`}
+              /></div>}
 
               {/* <Switch>
                 <Route path="/myaccount/orders" exact component={Orders} />

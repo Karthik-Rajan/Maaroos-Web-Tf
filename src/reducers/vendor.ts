@@ -1,4 +1,4 @@
-import { vendorList, vendorDetail, fetchMySchedule } from "../actions";
+import { vendorList, vendorDetail, fetchMySchedule, addSchedule } from "../actions";
 
 const commonState = {
   location: {
@@ -44,11 +44,10 @@ const reducer = async (state = initialState, action: any) => {
         detail = res;
       });
       return detail;
-
     case "MY_CALENDAR":
-      return await fetchMySchedule({ ...action.payload }).then((res: any) => {
-        return res;
-      });
+      return await fetchMySchedule({ ...action.payload }).then((res: any) => res);
+    case "ADD_CALENDAR":
+      return await addSchedule({ ...action.payload }).then((res: any) => res);
     default:
       return state;
   }

@@ -23,10 +23,6 @@ import Review from "./common/Review";
 import Icofont from "react-icofont";
 import { connect } from "react-redux";
 import { vendorDetailSkeleton } from "./skeletons";
-import FullCalendar from "@fullcalendar/react";
-import dayGridPlugin from "@fullcalendar/daygrid";
-import timeGridPlugin from "@fullcalendar/timegrid";
-import interactionPlugin from "@fullcalendar/interaction";
 import NoAccess from "./NoAccess";
 import dayjs from 'dayjs';
 import { CalendarInput, Types, TypesName } from "../constants/types";
@@ -34,6 +30,8 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { MobileDatePicker } from '@mui/x-date-pickers/MobileDatePicker';
 import { useForm } from 'react-hook-form';
+import Calendar from "./common/Calendar";
+import BottomNavigation from "./common/BottomNavigation";
 
 
 let reload = 0;
@@ -44,7 +42,7 @@ const Detail = (props: any) => {
   let { vId } = useParams();
 
   const todayFrom = dayjs().startOf('month').format('YYYY-MM-DD 00:00:00');
-  const todayTo = dayjs().endOf('month').format('YYYY-MM-DD 23:59:59');
+  const todayTo = dayjs().add(1, 'month').format('YYYY-MM-DD 23:59:59');
   const minDate = dayjs().add(1, 'week').format('YYYY-MM-DD');
   const maxDate = dayjs(minDate).add(2, 'weeks').format('YYYY-MM-DD');
   const scheduleForm = useRef();
@@ -56,7 +54,7 @@ const Detail = (props: any) => {
 
   const [detail, setDetail] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [calendarInput, setCalendarInput] = useState<CalendarInput>({ from: todayFrom, to: todayTo, types: [] });
+  const [calendarInput, setCalendarInput] = useState<CalendarInput>({ from: todayFrom, to: todayTo, types: [Types.BF, Types.DR, Types.LN] });
   const [calendarEvents, setCalendarEvents] = useState([]);
   const [section, setSection] = useState('listing');
   const reviewUser = [];
@@ -65,13 +63,13 @@ const Detail = (props: any) => {
   const [fromDate, setFromDate] = useState<any>('');
   const [toDate, setToDate] = useState<any>('');
 
+  const myCalendarRef = useRef();
+  const ratingRef = useRef()
+
   useEffect(() => {
-    if (reload === 0) dispatch({ type: "DETAIL", payload: { vId } });
-
-    if (reload === 1) dispatch({ type: "MY_CALENDAR", payload: { ...calendarInput, vId } });
-
-    reload++;
-  }, [reload]);
+    dispatch({ type: "DETAIL", payload: { vId } });
+    reload++
+  }, []);
 
   useEffect(() => {
     vendorDetail.then((res: any) => {
@@ -95,17 +93,6 @@ const Detail = (props: any) => {
   const getStarValue = ({ value }: any) => {
   };
 
-  const renderEventContent = (eventContent: any) => {
-    let { title } = eventContent.event;
-    const { timeText } = eventContent
-    const fullTitle = title === Types.BF ? 'Breakfast' : (title === Types.LN ? 'Lunch' : 'Dinner');
-    return (
-      <>
-        <i className={title + `-title`}>{fullTitle + ` (` + timeText + `m)`}</i>
-      </>
-    )
-  }
-
   const setFilterInput = (type: Types) => {
     let updatedInputs = calendarInput;
     if (calendarInput.types.includes(type)) {
@@ -123,8 +110,15 @@ const Detail = (props: any) => {
   }
 
   const onScheduleSubmit = (data: any) => {
-    console.log(data);
-    console.log(errors)
+    let { fromDate, toDate } = data;
+    if (fromDate && toDate && foodTypes) {
+      fromDate = dayjs(fromDate).format('YYYY-MM-DD');
+      toDate = dayjs(toDate).format('YYYY-MM-DD');
+      dispatch({
+        type: "ADD_CALENDAR",
+        payload: { vId, fromDate, toDate, foodTypes },
+      });
+    }
   }
 
   return (
@@ -206,9 +200,9 @@ const Detail = (props: any) => {
                         <Icofont icon="sale-discount" /> OFFERS
                       </Button>
                     </span>
-                    <Nav id="pills-tab">
-                      <Nav.Item>
-                        <Nav.Link eventKey="zero">My Calendar</Nav.Link>
+                    <Nav id="pills-tab" className="detailPageTabMenuDesK">
+                      <Nav.Item >
+                        <Nav.Link ref={myCalendarRef} eventKey="zero">My Calendar</Nav.Link>
                       </Nav.Item>
                       <Nav.Item>
                         <Nav.Link eventKey="first">Order Online</Nav.Link>
@@ -223,7 +217,7 @@ const Detail = (props: any) => {
                         <Nav.Link eventKey="fourth">Book A Table</Nav.Link>
                       </Nav.Item>
                       <Nav.Item>
-                        <Nav.Link eventKey="fifth">Ratings & Reviews</Nav.Link>
+                        <Nav.Link ref={ratingRef} eventKey="fifth">Ratings & Reviews</Nav.Link>
                       </Nav.Item>
                     </Nav>
                   </Col>
@@ -237,59 +231,14 @@ const Detail = (props: any) => {
                     <div className="offer-dedicated-body-left">
                       <Tab.Content className="h-100">
                         <Tab.Pane eventKey="zero">
-                          {/* <Row> */}
-                          {/* {isAuthenticated && ( */}
-                          <FullCalendar
-                            plugins={[
-                              dayGridPlugin,
-                              timeGridPlugin,
-                              interactionPlugin,
-                            ]}
-                            eventBackgroundColor={'white'}
-                            headerToolbar={{
-                              left: "prev,next today",
-                              center: "title",
-                              right: "dayGridMonth,timeGridWeek,timeGridDay",
-                            }}
-                            initialView="dayGridMonth"
-                            editable={true}
-                            lazyFetching={true}
-                            selectable={true}
-                            selectMirror={true}
-                            dayMaxEvents={true}
-                            weekends={true}
-                            themeSystem={"bootstrap5"}
-                            dayHeaders={true}
-                            events={() => {
-                              return vendorDetail.then((data: any) => {
-                                if (data.type === 'MY_CALENDAR') {
-                                  return data.detail;
-                                }
-                                return [];
-                              })
-                            }}
-                            select={() => {
-                              setSection('addEvent');
-                              setFromDate(minDate);
-                              setToDate(minDate);
-                            }}
-                            eventContent={renderEventContent} // custom render function
-                            eventClick={() => {
-                              console.log("eventClick");
-                            }}
-                            eventsSet={() => {
-
-                            }} // called after events are initialized/added/changed/removed
-                          /* you can update a remote database when these fire:
-      eventAdd={function(){}}
-      eventChange={function(){}}
-      eventRemove={function(){}}
-      */
+                          <Calendar
+                            vendorDetail={vendorDetail}
+                            setSection={setSection}
+                            setFromDate={setFromDate}
+                            setToDate={setToDate}
+                            dispatch={dispatch}
+                            vId={vId}
                           />
-                          {/* )} */}
-                          {/* {!isAuthenticated && ( */}
-                          {/* <NoAccess detailPage={true} showModal={showModal} /> */}
-                          {/* )} */}
                         </Tab.Pane>
                         <Tab.Pane eventKey="first">
                           <h5 className="mb-4">Recommended</h5>
@@ -816,24 +765,32 @@ const Detail = (props: any) => {
                   </Col>
                   <Col md={4}>
                     <div className="bg-white rounded shadow-sm text-white mb-4 p-4 clearfix restaurant-detailed-earn-pts card-icon-overlap">
-                      {section === 'listing' && <div className="border-btn-main mb-4">
-                        <h5 className="mb-4">Select Types</h5>
-                        <Link className={calendarInput.types.includes(Types.BF) ? `border-btn mr-2 greenFilter` : 'border-btn mr-2 grayFilter'} to="#" onClick={() => {
-                          setFilterInput(Types.BF);
-                        }}>
-                          <Icofont icon={calendarInput.types.includes(Types.BF) ? `check-circled` : `close-circled`} /> Breakfast
-                        </Link>
-                        <Link className={calendarInput.types.includes(Types.LN) ? `border-btn mr-2 greenFilter` : 'border-btn mr-2 grayFilter'} to="#" onClick={() => {
-                          setFilterInput(Types.LN);
-                        }}>
-                          <Icofont icon={calendarInput.types.includes(Types.LN) ? `check-circled` : `close-circled`} /> Lunch
-                        </Link>
-                        <Link className={calendarInput.types.includes(Types.DR) ? `border-btn mr-2 greenFilter` : 'border-btn mr-2 grayFilter'} to="#" onClick={() => {
-                          setFilterInput(Types.DR);
-                        }}>
-                          <Icofont icon={calendarInput.types.includes(Types.DR) ? `check-circled` : `close-circled`} /> Dinner
-                        </Link>
-                      </div>
+                      {section === 'listing' &&
+                        <>
+                          <div className="border-btn-main mb-4">
+                            <Link to="#" className="float-right" onClick={() => {
+                              setSection('addEvent');
+                            }}>
+                              Add Schedules
+                            </Link>
+                            <h5 className="mb-4">Select Types</h5>
+                            <Link className={calendarInput.types.includes(Types.BF) ? `border-btn mr-2 greenFilter` : 'border-btn mr-2 grayFilter'} to="#" onClick={() => {
+                              setFilterInput(Types.BF);
+                            }}>
+                              <Icofont icon={calendarInput.types.includes(Types.BF) ? `check-circled` : `close-circled`} /> Breakfast
+                            </Link>
+                            <Link className={calendarInput.types.includes(Types.LN) ? `border-btn mr-2 greenFilter` : 'border-btn mr-2 grayFilter'} to="#" onClick={() => {
+                              setFilterInput(Types.LN);
+                            }}>
+                              <Icofont icon={calendarInput.types.includes(Types.LN) ? `check-circled` : `close-circled`} /> Lunch
+                            </Link>
+                            <Link className={calendarInput.types.includes(Types.DR) ? `border-btn mr-2 greenFilter` : 'border-btn mr-2 grayFilter'} to="#" onClick={() => {
+                              setFilterInput(Types.DR);
+                            }}>
+                              <Icofont icon={calendarInput.types.includes(Types.DR) ? `check-circled` : `close-circled`} /> Dinner
+                            </Link>
+                          </div>
+                        </>
                       }
                       {section === 'addEvent' && <div>
                         <h5 className="mb-4">Add Schedule</h5>
@@ -888,9 +845,6 @@ const Detail = (props: any) => {
                                       typeof value === 'string' ? value.split(',') : value,
                                     );
                                   }}
-                                // {...register("foodTypeMulti", {
-                                //   required: `From date is required`,
-                                // })}
                                 >
                                   <MenuItem key={Types.BF} value={Types.BF}>{TypesName.BF}</MenuItem>
                                   <MenuItem key={Types.LN} value={Types.LN}>{TypesName.LN}</MenuItem>
@@ -1044,6 +998,7 @@ const Detail = (props: any) => {
               </Container>
             </section>
           </Tab.Container>
+          <BottomNavigation myCalendarRef={myCalendarRef} ratingRef={ratingRef} />
         </div>
       )
       }

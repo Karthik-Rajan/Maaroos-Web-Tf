@@ -1,5 +1,5 @@
 import { BASE_URL, ME } from "../constants/user";
-import { FETCH, DETAIL, MY_CALENDAR } from "../constants/vendor";
+import { FETCH, DETAIL, MY_CALENDAR, ADD_CALENDAR } from "../constants/vendor";
 import {
   authHeaders,
   refreshAuth,
@@ -83,6 +83,28 @@ export const fetchMySchedule: any = async ({ vId, types, from, to, retry = true 
       if (retry) {
         const user = await refreshAuth();
         return await fetchMySchedule({ vId, types, from, to, retry: false });
+      }
+      console.log("User Login Err", err);
+    });
+};
+
+export const addSchedule: any = async ({ vId, fromDate, toDate, foodTypes, retry = true }: any) => {
+  const response = { type: "ADD_CALENDAR" };
+  return await fetch(BASE_URL + `/` + vId + ADD_CALENDAR, {
+    ...methodProps("POST", { fromDate, toDate, foodTypes }),
+    ...authHeaders(),
+  })
+    .then((res) => {
+      return res.json();
+    })
+    .then((data) => {
+      return { ...response, data };
+    })
+    .catch(async (err) => {
+      /** Retry Authentication */
+      if (retry) {
+        const user = await refreshAuth();
+        return await addSchedule({ vId, fromDate, toDate, foodTypes, retry: false });
       }
       console.log("User Login Err", err);
     });
