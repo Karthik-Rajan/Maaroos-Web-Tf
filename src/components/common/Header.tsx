@@ -13,6 +13,7 @@ import Icofont from "react-icofont";
 import Auth from "@aws-amplify/auth";
 import SearchBar from "./SearchBar";
 
+
 function Header(props: any) {
   // Amplify.configure(awsConfig);
   const [user, setUser] = useState(null);
@@ -40,7 +41,6 @@ function Header(props: any) {
   const onCloseMenu = () => {
     setIsNavExpanded(false);
   };
-
   return (
     <>
       <div ref={(node) => node}>
@@ -55,9 +55,10 @@ function Header(props: any) {
             <Navbar.Brand to="/">
               <Image src="/img/logo.png" alt="Maaroos" className="logoImage" />
             </Navbar.Brand>
-            <Navbar.Toggle />
-
-            <Navbar.Collapse id="navbarNavDropdown">
+            <Navbar.Toggle className="order-3" />
+            {window.location.pathname === '/listing' && (
+            <SearchBar/>)}
+            <Navbar.Collapse className="flex-grow-0 order-3" id="navbarNavDropdown">
               <Nav activeKey={0} className="ml-auto" onSelect={onCloseMenu}>
                 <Nav.Link
                   eventKey={0}
@@ -405,6 +406,7 @@ function Header(props: any) {
             </Navbar.Collapse>
           </Container>
         </Navbar>
+        
       </div>
       {notification ? (
         <Alert

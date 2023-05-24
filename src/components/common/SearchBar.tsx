@@ -7,6 +7,7 @@ import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import { usePlacesWidget } from "react-google-autocomplete";
 import Geocode from "react-geocode";
+import { useLocation } from 'react-router-dom';
 
 const SearchBar = (props: any) => {
   Geocode.setLanguage("en");
@@ -139,6 +140,10 @@ const SearchBar = (props: any) => {
       `/listing?q=` + coordinatesTemp.lat + `,` + coordinatesTemp.lng;
   };
 
+  //Updateing the ClassName for Specified pages 
+  const uselocation = useLocation();
+  const isHomePage = uselocation.pathname === "/listing";
+  
   return (
     <div className="homepage-search-form">
       <Form
@@ -147,7 +152,7 @@ const SearchBar = (props: any) => {
         className="form-noborder"
         onSubmit={handleSubmit(onSubmit)}
       >
-        <div className="form-row">
+         <div className={isHomePage ? 'form-row justify-content-center' : 'form-row'}>
           {quickSearch && (
             <Form.Group className="col-lg-3 col-md-3 col-sm-12">
               <div className="location-dropdown">
@@ -172,7 +177,7 @@ const SearchBar = (props: any) => {
             className={
               props.filterSearch
                 ? `col-lg-12 col-md-12 col-sm-12`
-                : `col-lg-7 col-md-7 col-sm-12`
+                : `col-lg-7  mb-0 col-md-7 col-sm-12`
             }
           >
             <Form.Control
@@ -190,7 +195,7 @@ const SearchBar = (props: any) => {
             </Link>
           </Form.Group>
           {!props.filterSearch && (
-            <Form.Group className="col-lg-2 col-md-2 col-sm-12">
+            <Form.Group className="col-lg-2  mb-0 w-250px col-md-2 col-sm-12">
               <Link
                 to={""}
                 className="btn btn-primary btn-block btn-lg btn-gradient"
