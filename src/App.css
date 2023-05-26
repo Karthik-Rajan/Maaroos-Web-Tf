@@ -297,6 +297,12 @@ h6 {
   background-color: #3b5998;
 }
 
+/* Width customize */
+.w-250px {
+  width: 250px;
+}
+
+
 /* Homepage Search Block */
 .pac-target-input {
   border-color: currentColor;
@@ -1643,6 +1649,9 @@ footer {
     border-radius: 2px;
   }
 
+  .order-3 {
+    order:3;
+  }
   .osahan-nav .nav-link {
     margin: 0px;
     text-align: center;
@@ -2193,6 +2202,13 @@ footer {
 
   .detailPageTabMenuDesK {
     display: flex;
+  }
+}
+
+@media (max-width :992px) {
+  .logoImage {
+    width: 105px;
+    height: 26px;
   }
 }
 
