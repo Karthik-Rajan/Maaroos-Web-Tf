@@ -32,7 +32,7 @@ import { MobileDatePicker } from '@mui/x-date-pickers/MobileDatePicker';
 import { useForm } from 'react-hook-form';
 import Calendar from "./common/Calendar";
 import BottomNavigation from "./common/BottomNavigation";
-
+import AddCalendarModal from "./common/AddCalendarModal";
 
 let reload = 0;
 
@@ -62,9 +62,13 @@ const Detail = (props: any) => {
   const [foodTypes, setFoodTypes] = useState<string[]>([]);
   const [fromDate, setFromDate] = useState<any>('');
   const [toDate, setToDate] = useState<any>('');
+  const [showAddCalendar, setShowAddCalendar] = useState(false);
 
   const myCalendarRef = useRef();
   const ratingRef = useRef()
+  const menuRef = useRef()
+  const galleryRef = useRef()
+  const contactRef = useRef();
 
   useEffect(() => {
     dispatch({ type: "DETAIL", payload: { vId } });
@@ -123,6 +127,10 @@ const Detail = (props: any) => {
 
   return (
     <>
+      <AddCalendarModal
+        show={showAddCalendar}
+        onHide={() => setShowAddCalendar(false)}
+      />
       {isLoading && vendorDetailSkeleton}
       {!isLoading && detail && (
         <div>
@@ -205,13 +213,13 @@ const Detail = (props: any) => {
                         <Nav.Link ref={myCalendarRef} eventKey="zero">My Calendar</Nav.Link>
                       </Nav.Item>
                       <Nav.Item>
-                        <Nav.Link eventKey="first">Order Online</Nav.Link>
+                        <Nav.Link ref={menuRef} eventKey="first">Order Online</Nav.Link>
                       </Nav.Item>
                       <Nav.Item>
-                        <Nav.Link eventKey="second">Gallery</Nav.Link>
+                        <Nav.Link ref={galleryRef} eventKey="second">Gallery</Nav.Link>
                       </Nav.Item>
                       <Nav.Item>
-                        <Nav.Link eventKey="third">Restaurant Info</Nav.Link>
+                        <Nav.Link ref={contactRef} eventKey="third">Restaurant Info</Nav.Link>
                       </Nav.Item>
                       <Nav.Item>
                         <Nav.Link eventKey="fourth">Book A Table</Nav.Link>
@@ -768,11 +776,14 @@ const Detail = (props: any) => {
                       {section === 'listing' &&
                         <>
                           <div className="border-btn-main mb-4">
-                            <Link to="#" className="float-right" onClick={() => {
-                              setSection('addEvent');
+
+                            <Button type="button" className="btn btn-primary btn-block btn-lg" onClick={() => {
+                              setShowAddCalendar(true);
                             }}>
-                              Add Schedules
-                            </Link>
+                              {" "}
+                              Add New Schedule{" "}
+                            </Button>
+                            <hr />
                             <h5 className="mb-4">Select Types</h5>
                             <Link className={calendarInput.types.includes(Types.BF) ? `border-btn mr-2 greenFilter` : 'border-btn mr-2 grayFilter'} to="#" onClick={() => {
                               setFilterInput(Types.BF);
@@ -807,9 +818,10 @@ const Detail = (props: any) => {
                                   onChange={(newValue) => {
                                     setFromDate(newValue);
                                   }}
-                                  renderInput={(params) => <TextField {...params} {...register("fromDate", {
-                                    required: `From date is required`,
-                                  })} />}
+                                  renderInput={(params) => {
+                                    console.log(params);
+                                    return <TextField error={false} {...params} />
+                                  }}
                                 />
                               </LocalizationProvider>
                             </Col>
@@ -998,7 +1010,7 @@ const Detail = (props: any) => {
               </Container>
             </section>
           </Tab.Container>
-          <BottomNavigation myCalendarRef={myCalendarRef} ratingRef={ratingRef} />
+          <BottomNavigation myCalendarRef={myCalendarRef} ratingRef={ratingRef} galleryRef={galleryRef} contactRef={contactRef} menuRef={menuRef} />
         </div>
       )
       }

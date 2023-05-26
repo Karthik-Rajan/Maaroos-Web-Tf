@@ -65,11 +65,7 @@ function App() {
         />
         <Route path="*" element={<NotFound />} />
         <Route
-          path="/myaccount"
-          element={isAuthenticated ? <MyAccount /> : noAccess}
-        />
-        <Route
-          path="/myaccount/*"
+          path="/myaccount*"
           element={isAuthenticated ? <MyAccount /> : noAccess}
         />
         <Route

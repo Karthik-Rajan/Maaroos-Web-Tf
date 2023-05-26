@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Row, Col, Container } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import OwlCarousel from "react-owl-carousel3";
@@ -8,8 +8,17 @@ import CardItem from "./common/CardItem";
 import SectionHeading from "./common/SectionHeading";
 import FontAwesome from "./common/FontAwesome";
 import { Image } from "react-bootstrap";
+import { connect } from "react-redux";
 
-function Index() {
+const Index = (props: any) => {
+
+  useEffect(() => {
+    props.dispatch({
+      type: "LOCATION",
+      payload: { trendAlone: true },
+    });
+  }, []);
+
   return (
     <>
       <TopSearch />
@@ -182,4 +191,10 @@ const options = {
   ],
 };
 
-export default Index;
+
+function mapStateToProps(state: any) {
+  return {
+    ...state,
+  };
+}
+export default connect(mapStateToProps)(Index);

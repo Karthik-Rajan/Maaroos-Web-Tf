@@ -24,15 +24,15 @@ const Calendar = (props: any) => {
     const view = {
         week: {
             type: 'listWeek',
-            buttonText: 'Week List'
+            buttonText: 'WL'
         },
         month: {
             type: 'listMonth',
-            buttonText: 'Month List'
+            buttonText: 'ML'
         },
         monthGrid: {
             type: 'dayGridMonth',
-            buttonText: 'Month Grid'
+            buttonText: 'MG'
         }
     }
 

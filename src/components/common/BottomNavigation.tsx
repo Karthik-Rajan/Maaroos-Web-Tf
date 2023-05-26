@@ -6,7 +6,7 @@ import { Nav } from 'react-bootstrap';
 
 
 
-const BottomNavigation = ({ myCalendarRef, ratingRef }: any) => {
+const BottomNavigation = ({ myCalendarRef, ratingRef, menuRef, contactRef, galleryRef }: any) => {
     const [open, setOpen] = useState(false);
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
@@ -17,8 +17,11 @@ const BottomNavigation = ({ myCalendarRef, ratingRef }: any) => {
     }
 
     const actions = [
-        { icon: <Icofont icon="calendar" />, name: 'Calendar', tab: myCalendarRef },
-        { icon: <Icofont icon="ui-rating" />, name: 'Rating', tab: ratingRef },
+        { icon: <Icofont icon="calendar" />, name: "CALENDAR", tab: myCalendarRef, },
+        { icon: <Icofont icon="restaurant-menu" />, name: "MENU", tab: menuRef },
+        { icon: <Icofont icon="info" />, name: "INFO", tab: contactRef },
+        { icon: <Icofont icon="image" />, name: "GALLERY", tab: galleryRef },
+        { icon: <Icofont icon="ui-rating" />, name: "RATING", tab: ratingRef },
     ];
 
     return (
@@ -29,12 +32,12 @@ const BottomNavigation = ({ myCalendarRef, ratingRef }: any) => {
                 icon={<Icofont icon="navigation-menu" />}
                 onClose={handleClose}
                 onOpen={handleOpen}
-                className="speedDialMenu"
                 open={open}
+                className="speedDialMenu"
             >
-                {actions.map((action) => (
+                {actions.map((action, index) => (
                     <SpeedDialAction
-                        key={action.name}
+                        key={index}
                         icon={action.icon}
                         tooltipTitle={action.name}
                         tooltipOpen

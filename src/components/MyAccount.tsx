@@ -32,6 +32,8 @@ const MyAccount = ({ user, vendor, dispatch }: any) => {
     '/myaccount/calendar': 'myCalendar',
     '/myaccount/favourites': 'favourites',
     '/myaccount/payments': 'payments',
+    '/myaccount/track-order': 'track-order',
+    '/myaccount': 'orders'
   }
 
   useEffect(() => {

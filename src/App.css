@@ -28,7 +28,7 @@ Version: 1.0
 }
 
 .logoImage {
-  width: 190px;
+  width: 250px;
 }
 
 .dropdown-item.active,
@@ -870,6 +870,29 @@ iframe.position-absolute {
 }
 
 /* detail */
+.MuiButtonBase-root.MuiPickersToolbar-penIconButton {
+  display: none;
+}
+
+.fc.fc-media-screen a {
+  color: #383636 !important;
+}
+
+.fc .fc-button-primary:disabled {
+  background-color: #cfcfcf !important;
+}
+
+.fc-button-group button,
+.fc-toolbar-chunk button {
+  background-color: white !important;
+  color: #383636 !important;
+  border: 1px solid #5c5555 !important;
+}
+
+.MuiSpeedDial-root button.MuiButtonBase-root {
+  background-color: #d82926 !important;
+  color: white
+}
 
 .greenFilter {
   color: green;
@@ -900,21 +923,18 @@ iframe.position-absolute {
   background-color: transparent;
   color: rgb(104, 101, 101);
   font-size: 15px;
-  font-weight: bolder;
 }
 
 .LN-title {
   background-color: transparent;
   color: rgb(104, 101, 101);
   font-size: 15px;
-  font-weight: bolder;
 }
 
 .DR-title {
   background-color: transparent;
   color: rgb(104, 101, 101);
   font-size: 15px;
-  font-weight: bolder;
 }
 
 .doneDelivery {
