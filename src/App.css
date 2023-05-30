@@ -298,9 +298,9 @@ h6 {
 }
 
 /* Width customize */
-.w-250px {
+/* .w-250px {
   width: 250px;
-}
+} */
 
 
 /* Homepage Search Block */
@@ -1649,9 +1649,9 @@ footer {
     border-radius: 2px;
   }
 
-  .order-3 {
+  /* .order-3 {
     order:3;
-  }
+  } */
   .osahan-nav .nav-link {
     margin: 0px;
     text-align: center;
@@ -2205,12 +2205,12 @@ footer {
   }
 }
 
-@media (max-width :992px) {
+/* @media (max-width :992px) {
   .logoImage {
     width: 105px;
     height: 26px;
   }
-}
+} */
 
 /** UnAuthorized **/
 .unauthorized-img {
