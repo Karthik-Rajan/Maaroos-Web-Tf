@@ -7,7 +7,7 @@ import ForgotForm from "../common/ForgotForm";
 import { Modal, Button, Alert } from "react-bootstrap";
 import Amplify from "@aws-amplify/core";
 import Auth from "@aws-amplify/auth";
-import awsConfig from "../../awsConfig";
+import awsConfig from "../../awsConfig.json";
 import {
   SIGNEDIN,
   OTPSENT,

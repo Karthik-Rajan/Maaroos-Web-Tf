@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { Row, Col, Container, Form } from "react-bootstrap";
 import Amplify from "@aws-amplify/core";
 import Auth from "@aws-amplify/auth";
-import awsConfig from "../awsConfig";
+import awsConfig from "../awsConfig.json";
 import { useNavigate } from "react-router-dom";
 import "../PhoneInput.css";
 import {

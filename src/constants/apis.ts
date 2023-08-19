@@ -29,6 +29,11 @@ export const methodProps = (method: string, input?: any) => {
         method: "POST",
         body: JSON.stringify(input),
       };
+    case "PUT":
+      return {
+        method : "PUT",
+        body: JSON.stringify(input)
+      }
     default:
       return {
         method: "GET",

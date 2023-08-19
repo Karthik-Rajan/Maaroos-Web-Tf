@@ -10,6 +10,7 @@ const UNKNOWNERR = "Oops, Something went wrong. Please try again.";
 const VERIFYNUMBER = "Verifying number (Country code +XX needed)";
 const USERSIGNUP = "You have signed-up successfully";
 const WRONGUSER = "Incorrect username / password";
+const UPDATED = "Details updated successfully"
 
 export {
   NOTSIGNIN,
@@ -24,4 +25,5 @@ export {
   USERSIGNUP,
   WRONGUSER,
   RESET,
+  UPDATED
 };

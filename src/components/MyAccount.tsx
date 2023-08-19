@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { NavLink, Link, BrowserRouter, Routes, Route } from "react-router-dom";
 import { Row, Col, Container, Image } from "react-bootstrap";
 import Offers from "./myaccount/Offers";
@@ -11,19 +11,56 @@ import Auth from "@aws-amplify/auth";
 import TrackOrder from "./TrackOrder";
 import { connect } from "react-redux";
 import Calendar from "./common/Calendar";
-
-const MyAccount = ({ user, vendor, dispatch }: any) => {
+import { useForm, SubmitHandler } from "react-hook-form";
+import { UPDATED } from "../ErrorConstants";
+import { Avatar } from "@mui/material";
+import { stringAvatar } from "../helpers/utils";
+let reload = 0;
+const MyAccount = (props: any) => {
+  const { user, dispatch, vendor } = props;
+  console.log(props);
   const [users, setUsers] = useState<any>({});
   const [showEditProfile, setShowEditProfile] = useState(false);
   const [page, setPage] = useState("orders");
+  const profileFormRef = useRef();
+  const [info, setInfo] = useState("");
 
   const verifyAuth = () => {
     Auth.currentAuthenticatedUser()
-      .then((user) => { })
+      .then((user) => {
+      })
       .catch((err) => {
         console.error(err);
         window.location.href = "/";
       });
+  };
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
+
+  const getProfile = async () => await dispatch({ type: "USER_PROFILE_FETCH", payload: {} });
+
+  const updateProfile = async (firstName : string, lastName : string, emailId : string) => {
+    await dispatch({ type: "USER_PROFILE_UPDATE", payload: { firstName, lastName, emailId } });
+    await Auth.currentAuthenticatedUser()
+    .then((user) => {
+      Auth.updateUserAttributes(user, {name : firstName, middle_name : lastName}).then(res => console.log("attr", res));
+    })
+    .catch((err) => {
+      console.error(err);
+      window.location.href = "/";
+    });
+  };
+
+  const onProfileUpdate = async (data: any) => {
+    let { firstName, lastName, emailId } = data;
+    await updateProfile(firstName, lastName, emailId);
+    await getProfile();
+    setInfo(UPDATED)
+    reload++;
   };
 
   const pathMap: any = {
@@ -35,21 +72,32 @@ const MyAccount = ({ user, vendor, dispatch }: any) => {
     '/myaccount/track-order': 'track-order',
     '/myaccount': 'orders'
   }
-
   useEffect(() => {
     verifyAuth();
-    dispatch({ type: "USER_PROFILE_FETCH", payload: {} });
-    user.then((data: any) => {
-      setUsers(data.userData);
-    });
+    getProfile();
     setPage(pathMap[window.location.pathname]);
+    reload++;
   }, []);
+
+  useEffect(() => {
+    user.then((data: any) => {
+      if(data.userData) setUsers(data.userData);
+    });
+  }, [reload]);
 
   return (
     <>
       <EditProfileModal
         show={showEditProfile}
         onHide={() => setShowEditProfile(false)}
+        profileForm={profileFormRef}
+        onProfileUpdate={onProfileUpdate}
+        handleSubmit={handleSubmit}
+        register={register}
+        errors={errors}
+        users={users}
+        info={info}
+        setInfo={setInfo}
       />
       <section className="section pt-4 pb-4 osahan-account-page">
         <Container>
@@ -59,19 +107,22 @@ const MyAccount = ({ user, vendor, dispatch }: any) => {
                 <div className="border-bottom p-4">
                   <div className="osahan-user text-center">
                     <div className="osahan-user-media">
-                      <Image
+                      {/* <Image
                         className="mb-3 rounded-pill shadow-sm mt-1"
                         src="/img/user/4.png"
-                        alt="gurdeep singh osahan"
-                      />
+                        alt={(users?.first_name || `NoName`) +
+                          " " +
+                          (users?.second_name || `Noname`)}
+                      /> */}
+                      <div className="nameAvatar">
+                        <Avatar {...stringAvatar(users ? users?.first_name + ' ' + users?.second_name : `?`)} />
+                      </div>
                       <div className="osahan-user-media-body">
                         <h6 className="mb-2">
-                          {(users?.first_name || `NoName`) +
-                            " " +
-                            (users?.second_name || `Noname`)}
+                          {users ? users?.first_name + ' ' + users?.second_name : `NoName NoName`}
                         </h6>
                         <p className="mb-1">{users?.mobile}</p>
-                        <p>{user?.email || "No email address configured"}</p>
+                        <p>{users?.email || "No email address configured"}</p>
                         <p className="mb-0 text-black font-weight-bold">
                           <Link
                             to="#"

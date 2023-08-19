@@ -23,6 +23,13 @@ Version: 1.0
 */
 
 /* Header */
+.userAvatarHeader{
+ font-size: 10px !important;
+ width: 35px !important;
+ height: 35px !important;
+ float : left !important;
+}
+
 .currentOrderInfo {
   margin-bottom: unset !important;
 }
@@ -876,6 +883,12 @@ iframe.position-absolute {
 }
 
 /* detail */
+.foodTypeMultiSelector .MuiOutlinedInput-root fieldset legend{
+  height: unset !important;
+}
+.foodTypeMultiSelector .MuiOutlinedInput-root fieldset legend span{
+  opacity: unset !important;
+}
 .MuiButtonBase-root.MuiPickersToolbar-penIconButton {
   display: none;
 }
@@ -1337,6 +1350,15 @@ iframe.position-absolute {
 }
 
 /* My Account */
+.nameAvatar{
+  padding: 0px 34% 0px 34%;
+  margin-bottom: 10%;
+}
+.nameAvatar div{
+ width : 80px;
+ height: 80px;
+}
+
 .noPadding {
   padding: unset !important;
 }

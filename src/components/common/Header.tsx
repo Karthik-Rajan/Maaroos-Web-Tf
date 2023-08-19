@@ -22,10 +22,10 @@ function Header(props: any) {
 
   useEffect(() => {
     Auth.currentUserInfo().then((res) => {
+      console.log(res);
       setUser(res);
     });
   }, []);
-
   const onToggleHandler = () => {
     setIsNavExpanded(!isNavExpanded);
   };
@@ -109,10 +109,11 @@ function Header(props: any) {
                     title={
                       <DropDownTitle
                         className="d-inline-block"
-                        image="/img/user/4.png"
-                        imageAlt="user"
+                        // image="/img/user/4.png"
+                        // imageAlt="user"
                         imageClass="nav-osahan-pic rounded-pill"
                         title="My Account"
+                        user={user}
                       />
                     }
                   >

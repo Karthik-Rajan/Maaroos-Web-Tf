@@ -5,19 +5,17 @@ import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import listPlugin from '@fullcalendar/list';
 import dayjs from 'dayjs';
-import { CalendarInput, Types } from "../../constants/types";
+import { CalendarInput, Types, TypesName } from '../../constants/types';
 import { connect } from 'react-redux';
 
 let reload = 0;
 
 const Calendar = (props: any) => {
 
-    const { vendorDetail, setSection, setFromDate, setToDate, dispatch, vId = null } = props;
+    const { vendorDetail, setShowAddCalendar, setFromDate, setToDate, dispatch, vId = null,possibleMinDate, possibleMaxDate } = props;
 
     const todayFrom = dayjs().startOf('month').format('YYYY-MM-DD 00:00:00');
     const todayTo = dayjs().add(1, 'month').format('YYYY-MM-DD 23:59:59');
-    const minDate = dayjs().add(1, 'week').format('YYYY-MM-DD');
-    const maxDate = dayjs(minDate).add(2, 'weeks').format('YYYY-MM-DD');
 
     const [calendarInput, setCalendarInput] = useState<CalendarInput>({ from: todayFrom, to: todayTo, types: [Types.BF, Types.DR, Types.LN] });
 
@@ -39,7 +37,7 @@ const Calendar = (props: any) => {
     const renderEventContent = (eventContent: any) => {
         let { title } = eventContent.event;
         const { timeText } = eventContent
-        const fullTitle = title === Types.BF ? 'Breakfast' : (title === Types.LN ? 'Lunch' : 'Dinner');
+        const fullTitle = title === Types.BF ? TypesName.BF : (title === Types.LN ? TypesName.LN : TypesName.DR);
         let className = Types.BF === title ? `icofont-check doneDelivery ` : 'icofont-clock-time ';
         className += title + `-title`
         return (
@@ -66,22 +64,14 @@ const Calendar = (props: any) => {
             center: "title",
             right: "week,month,monthGrid",
         }}
-        validRange={(nowDate) => {
-            let startDate = new Date(nowDate.valueOf());
-            startDate.setDate(startDate.getDate() + 3);
-            let endDate = new Date(nowDate.valueOf());
-            endDate.setDate(endDate.getDate() + 30);
-            return { start: startDate, end: endDate };
+        validRange={() => {
+            return { start: possibleMinDate, end: possibleMaxDate };
         }}
-        visibleRange={(currentDate) => {
-            let startDate = new Date(currentDate.valueOf());
-            let endDate = new Date(currentDate.valueOf());
-            startDate.setDate(endDate.getDate() - 15);
-            endDate.setDate(endDate.getDate() + 30);
-            return { start: startDate, end: endDate };
+        visibleRange={() => {
+            return { start: possibleMinDate, end: possibleMaxDate };
         }}
         initialView="listWeek"
-        editable={true}
+        editable={false}
         lazyFetching={true}
         selectable={true}
         selectMirror={true}
@@ -98,11 +88,10 @@ const Calendar = (props: any) => {
                 return [];
             })
         }}
-        select={() => {
-            console.log('working');
-            setSection('addEvent');
-            setFromDate(minDate);
-            setToDate(minDate);
+        select={(date) => {
+            setShowAddCalendar(true);            
+            setFromDate(date.startStr);
+            setToDate(date.endStr);
         }}
         eventContent={renderEventContent}
         eventClick={() => {

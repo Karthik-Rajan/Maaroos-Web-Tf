@@ -2,6 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types'; 
 import {Image,Badge} from 'react-bootstrap';
 import FontAwesome from '../common/FontAwesome';
+import { stringAvatar } from '../../helpers/utils';
+import { Avatar } from '@mui/material';
 
 class DropDownTitle extends React.Component {
 	render() {
@@ -11,6 +13,11 @@ class DropDownTitle extends React.Component {
 					this.props.image?
 					<Image alt={this.props.imageAlt} src={this.props.image} className={this.props.imageClass} />
 					:''
+				}
+
+				{
+					this.props.user ? 
+					<Avatar className={this.props.imageClass+ ` userAvatarHeader`} {...stringAvatar(this.props.user.attributes?.name + ' ' + this.props.user.attributes?.middle_name)} /> : ''
 				}
 
 				{(this.props.faIcon && !this.props.image)?
@@ -39,10 +46,11 @@ DropDownTitle.propTypes = {
   badgeVariant: PropTypes.string,
   badgeClass: PropTypes.string,
   badgeValue: PropTypes.number,
+  user: PropTypes.any
 };
 
 DropDownTitle.defaultProps = {
-    faIcon: 'shopping-basket',
+    faIcon: '', //shopping-basket
     iconClass:'',
     className:'',
   	imageAlt:'',

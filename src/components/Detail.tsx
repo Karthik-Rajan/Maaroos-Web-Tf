@@ -41,11 +41,13 @@ const Detail = (props: any) => {
   const { dispatch, vendorDetail, isAuthenticated } = props;
   let { vId } = useParams();
 
+  const possibleMinDate = dayjs().add(1, 'week').format('YYYY-MM-DD');
+  const possibleMaxDate = dayjs(possibleMinDate).add(2, 'months').format('YYYY-MM-DD');
+
   const todayFrom = dayjs().startOf('month').format('YYYY-MM-DD 00:00:00');
-  const todayTo = dayjs().add(1, 'month').format('YYYY-MM-DD 23:59:59');
+  const todayTo = dayjs().add(2, 'months').format('YYYY-MM-DD 23:59:59');
   const minDate = dayjs().add(1, 'week').format('YYYY-MM-DD');
-  const maxDate = dayjs(minDate).add(2, 'weeks').format('YYYY-MM-DD');
-  const scheduleForm = useRef();
+  const maxDate = dayjs(minDate).add(2, 'months').format('YYYY-MM-DD');
   const {
     register,
     handleSubmit,
@@ -99,8 +101,8 @@ const Detail = (props: any) => {
 
   const setFilterInput = (type: Types) => {
     let updatedInputs = calendarInput;
-    if (calendarInput.types.includes(type)) {
-      delete calendarInput.types[calendarInput.types.indexOf(type)];
+    if (calendarInput.types.includes(type!)) {
+      delete calendarInput.types[calendarInput.types.indexOf(type!)];
       updatedInputs = { ...calendarInput }
     }
     else {
@@ -113,16 +115,18 @@ const Detail = (props: any) => {
     });
   }
 
-  const onScheduleSubmit = (data: any) => {
-    let { fromDate, toDate } = data;
-    if (fromDate && toDate && foodTypes) {
-      fromDate = dayjs(fromDate).format('YYYY-MM-DD');
-      toDate = dayjs(toDate).format('YYYY-MM-DD');
+  const onScheduleSubmit = (minDate : any, toDate : any, foodTypes : any) => {
+      let fromDate = dayjs(minDate).format('YYYY-MM-DD');
+      let tillDate = dayjs(toDate).format('YYYY-MM-DD');
       dispatch({
-        type: "ADD_CALENDAR",
-        payload: { vId, fromDate, toDate, foodTypes },
+          type: "ADD_CALENDAR",
+          payload: { vId, fromDate, toDate : tillDate, foodTypes },
       });
-    }
+      dispatch({
+        type: "MY_CALENDAR",
+        payload: { ...calendarInput, vId },
+      });
+      
   }
 
   return (
@@ -130,6 +134,8 @@ const Detail = (props: any) => {
       <AddCalendarModal
         show={showAddCalendar}
         onHide={() => setShowAddCalendar(false)}
+        fromDate={fromDate}
+        onScheduleSubmit={onScheduleSubmit}
       />
       {isLoading && vendorDetailSkeleton}
       {!isLoading && detail && (
@@ -246,6 +252,9 @@ const Detail = (props: any) => {
                             setToDate={setToDate}
                             dispatch={dispatch}
                             vId={vId}
+                            setShowAddCalendar={setShowAddCalendar}
+                            possibleMinDate={possibleMinDate}
+                            possibleMaxDate={possibleMaxDate}
                           />
                         </Tab.Pane>
                         <Tab.Pane eventKey="first">
@@ -781,7 +790,7 @@ const Detail = (props: any) => {
                               setShowAddCalendar(true);
                             }}>
                               {" "}
-                              Add New Schedule{" "}
+                               Subscribe Now{" "}
                             </Button>
                             <hr />
                             <h5 className="mb-4">Select Types</h5>
@@ -803,8 +812,8 @@ const Detail = (props: any) => {
                           </div>
                         </>
                       }
-                      {section === 'addEvent' && <div>
-                        <h5 className="mb-4">Add Schedule</h5>
+                      {/* {section === 'addEvent' && <div>
+                        <h5 className="mb-4">Subscription</h5>
                         <Form ref={scheduleForm} id="scheduleForm" onSubmit={handleSubmit(onScheduleSubmit)}>
                           <Row>
                             <Col sm={6}>
@@ -818,10 +827,7 @@ const Detail = (props: any) => {
                                   onChange={(newValue) => {
                                     setFromDate(newValue);
                                   }}
-                                  renderInput={(params) => {
-                                    console.log(params);
-                                    return <TextField error={false} {...params} />
-                                  }}
+                                  renderInput={(params) => <TextField error={false} {...params} />}
                                 />
                               </LocalizationProvider>
                             </Col>
@@ -877,13 +883,12 @@ const Detail = (props: any) => {
                           <Form.Group className="text-right">
                             <Button variant="primary" type="submit">
                               {" "}
-                              Add Schedule{" "}
+                              Subscribe now{" "}
                             </Button>
                           </Form.Group>
-                          {console.log(errors)}
                         </Form>
                       </div>
-                      }
+                      } */}
                     </div>
                     {/* <div className="bg-white rounded shadow-sm text-white mb-4 p-4 clearfix restaurant-detailed-earn-pts card-icon-overlap">
                       <Image
@@ -1019,7 +1024,6 @@ const Detail = (props: any) => {
 };
 
 function mapStateToProps(state: any) {
-  console.log(state);
   return {
     vendorDetail: state.vendor,
   };

@@ -52,6 +52,33 @@ export const userProfile: any = async (
     });
 };
 
+export const userProfileUpdate: any = async (
+  payload : object,
+  retry : boolean = true,
+  idToken : string = ''
+) => {
+  let userData = {};
+  const response = { type: "USER_PROFILE_UPDATE", userData };
+  return await fetch(BASE_URL + ME, {
+    ...authHeaders(idToken),
+    ...methodProps("PUT", payload),
+  })
+    .then((res: any) => {
+      return res.json();
+    })
+    .then((data: any) => {
+      return { ...response };
+    })
+    .catch(async (err: any) => {
+       /** Retry Authentication */
+       if (retry) {
+        const user = await refreshAuth();
+        return await userProfileUpdate(payload, false, user?.getIdToken()?.getJwtToken());
+      }
+      console.log("User Login Update Err", err);
+    });
+}
+
 export const vendorDetail = async ({ vId }: any) => {
   const response = { type: "DETAIL" };
   return await fetch(BASE_URL + DETAIL + vId, {
