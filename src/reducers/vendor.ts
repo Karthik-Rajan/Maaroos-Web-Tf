@@ -1,4 +1,5 @@
-import { vendorList, vendorDetail, fetchMySchedule, addSchedule } from "../actions";
+import { vendorList, vendorDetail, fetchMySchedule, addSchedule, addReview, fetchReview } from "../actions/api";
+import { FETCH_VENDOR_REQUEST, LOCATION, SET_LOCATION } from "../constants/vendor";
 
 const commonState = {
   location: {
@@ -19,35 +20,47 @@ const commonState = {
   detail: {},
 };
 const initialState = {
+  loading: false,
   location: commonState.location,
   list: commonState.list,
   search: commonState.search,
   detail: commonState.detail,
   myCalendar: [],
+  reviews: []
 };
 
-const reducer = async (state = initialState, action: any) => {
+const reducer = (state = initialState, action: any) => {
   switch (action.type) {
-    case "LOCATION":
-      return await vendorList({
-        search: {
-          ...commonState.search,
-          ...action.payload.search,
-        },
-        location: action.payload.location,
-      }).then((res: any) => {
-        return res;
-      });
+    case SET_LOCATION:
+      return {
+        ...state, loading: false, search: { ...state.search, ...action.payload }
+      }
+    case FETCH_VENDOR_REQUEST:
+      return { ...state, loading: true }
+    case LOCATION:
+      return {
+        ...state, ...action.payload
+      }
     case "DETAIL":
-      let detail = {};
-      await vendorDetail({ ...action.payload }).then((res: any) => {
-        detail = res;
+      return vendorDetail({ ...action.payload }).then((res: any) => {
+        return {
+          ...initialState,
+          detail: res
+        }
       });
-      return detail;
     case "MY_CALENDAR":
-      return await fetchMySchedule({ ...action.payload }).then((res: any) => res);
+      return fetchMySchedule({ ...action.payload }).then((res: any) => res);
     case "ADD_CALENDAR":
-      return await addSchedule({ ...action.payload }).then((res: any) => res);
+      return addSchedule({ ...action.payload }).then((res: any) => res);
+    case "ADD_REVIEW":
+      return addReview({ ...action.payload }).then((res: any) => res);
+    case "FETCH_REVIEW":
+      return fetchReview({ ...action.payload }).then((res: any) => {
+        return {
+          ...initialState,
+          reviews: res
+        }
+      })
     default:
       return state;
   }

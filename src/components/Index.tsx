@@ -8,17 +8,8 @@ import CardItem from "./common/CardItem";
 import SectionHeading from "./common/SectionHeading";
 import FontAwesome from "./common/FontAwesome";
 import { Image } from "react-bootstrap";
-import { connect } from "react-redux";
 
-const Index = (props: any) => {
-
-  useEffect(() => {
-    props.dispatch({
-      type: "LOCATION",
-      payload: { trendAlone: true },
-    });
-  }, []);
-
+const Index = () => {
   return (
     <>
       <TopSearch />
@@ -192,9 +183,4 @@ const options = {
 };
 
 
-function mapStateToProps(state: any) {
-  return {
-    ...state,
-  };
-}
-export default connect(mapStateToProps)(Index);
+export default Index;

@@ -60,10 +60,10 @@ const SideBarFilter = (props: any) => {
               </div>
               <Accordion.Collapse eventKey="0">
                 <div className="filters-card-body card-shop-filters">
-                  <QuickFilter
+                  {/* <QuickFilter
                     filterList={props.filterList}
                     onFilter={props.onFilter}
-                  />
+                  /> */}
                 </div>
               </Accordion.Collapse>
             </div>

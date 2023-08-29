@@ -112,7 +112,8 @@ const LoginModal = (props: any) => {
         password: signUpPassword,
         attributes: {
           phone_number: signUpMobile,
-        },
+          nickname: 0
+        }
       })
         .then((res) => {
           setShowOtp(true);

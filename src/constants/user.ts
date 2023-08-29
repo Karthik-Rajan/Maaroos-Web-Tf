@@ -1,4 +1,11 @@
-import { BASE_URL } from "./apis";
-const ME = "/me";
+import { BASE_URL as baseUrl } from "./apis";
+export const BASE_URL = baseUrl;
+export const ME = "/me";
+export const WALLET_ENTRY_REQUEST = "WALLET_ENTRY_REQUEST";
+export const WALLET_ENTRY_RESPONSE = "WALLET_ENTRY_RESPONSE";
+export const FETCH_PROFILE_REQUEST = "FETCH_PROFILE_REQUEST";
+export const FETCH_PROFILE_RESPONSE = "FETCH_PROFILE_RESPONSE";
+export const FETCH_PROFILE_FAILURE = "FETCH_PROFILE_FAILURE";
+export const UPDATE_PROFILE_REQUEST = "UPDATE_PROFILE_REQUEST";
+export const CREATE_WALLET_RECHARGE_RESPONSE = "CREATE_WALLET_RECHARGE_RESPONSE";
 
-export { ME, BASE_URL };

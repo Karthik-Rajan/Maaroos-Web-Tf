@@ -1,12 +1,14 @@
 import React, { useEffect, useState, useRef } from "react";
-import { connect } from "react-redux";
+import { connect, useDispatch, useSelector } from "react-redux";
 import Select2 from "react-select2-wrapper";
 import { Form } from "react-bootstrap";
 import Icofont from "react-icofont";
 import { useForm } from "react-hook-form";
-import { Link, useNavigate } from "react-router-dom";
+import { Route, Link, useNavigate } from "react-router-dom";
 import { usePlacesWidget } from "react-google-autocomplete";
 import Geocode from "react-geocode";
+import { SET_LOCATION } from "../../constants/vendor";
+import { Button } from "react-bootstrap";
 
 const SearchBar = (props: any) => {
   Geocode.setLanguage("en");
@@ -25,6 +27,9 @@ const SearchBar = (props: any) => {
   const searchForm = useRef();
   const { handleSubmit } = useForm();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const vendor = useSelector((state: any) => state.vendor);
+  console.log(vendor);
 
   let input = {};
 
@@ -50,9 +55,9 @@ const SearchBar = (props: any) => {
     ) {
       setQuickSearch(false);
     }
-    props.vendor.then((res: any) => {
-      input = res.search;
-    });
+    // props.vendor.then((res: any) => {
+    //   input = res.search;
+    // });
   }, []);
 
   const fetchAddress = (response: any, isPlaceApi = false) => {
@@ -84,10 +89,10 @@ const SearchBar = (props: any) => {
     }
     setLocationTemp(
       (locality ? locality + "," : "") +
-        (city ? city + "," : "") +
-        state +
-        ", " +
-        country
+      (city ? city + "," : "") +
+      state +
+      ", " +
+      country
     );
 
     if (isPlaceApi) {
@@ -135,11 +140,10 @@ const SearchBar = (props: any) => {
     setCoordinates(coordinatesTemp);
     setLocation(locationTemp);
 
-    window.location.href =
-      `/listing?q=` + coordinatesTemp.lat + `,` + coordinatesTemp.lng;
-  };
+    dispatch({ type: SET_LOCATION, payload: { ...coordinatesTemp } });
 
-  //Updateing the ClassName for Specified pages 
+    navigate('/listing');
+  };
 
   return (
     <div className="homepage-search-form">
@@ -149,7 +153,7 @@ const SearchBar = (props: any) => {
         className="form-noborder"
         onSubmit={handleSubmit(onSubmit)}
       >
-         <div className={'form-row'}>
+        <div className={'form-row'}>
           {quickSearch && (
             <Form.Group className="col-lg-3 col-md-3 col-sm-12">
               <div className="location-dropdown">
@@ -193,13 +197,13 @@ const SearchBar = (props: any) => {
           </Form.Group>
           {!props.filterSearch && (
             <Form.Group className="col-lg-2 col-md-2 col-sm-12">
-              <Link
-                to={""}
+              <Button
+                // to={""}
                 className="btn btn-primary btn-block btn-lg btn-gradient"
                 onClick={onSearch}
               >
                 Search
-              </Link>
+              </Button>
             </Form.Group>
           )}
         </div>
@@ -208,9 +212,4 @@ const SearchBar = (props: any) => {
   );
 };
 
-const mapStateToProps = (state: any) => {
-  return {
-    vendor: state.vendor,
-  };
-};
-export default connect(mapStateToProps)(SearchBar);
+export default SearchBar

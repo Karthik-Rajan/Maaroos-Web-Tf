@@ -9,25 +9,33 @@ import Addresses from "./myaccount/Addresses";
 import EditProfileModal from "./modals/EditProfileModal";
 import Auth from "@aws-amplify/auth";
 import TrackOrder from "./TrackOrder";
-import { connect } from "react-redux";
+import { connect, useDispatch, useSelector } from "react-redux";
 import Calendar from "./common/Calendar";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { UPDATED } from "../ErrorConstants";
 import { Avatar } from "@mui/material";
 import { stringAvatar } from "../helpers/utils";
+import Wallet from "./myaccount/Wallet";
+import { rz_WalletEntry, userProfile } from "../actions/api";
+import { FETCH_PROFILE_REQUEST, FETCH_PROFILE_RESPONSE, WALLET_ENTRY_REQUEST, WALLET_ENTRY_RESPONSE } from "../constants/user";
 let reload = 0;
 const MyAccount = (props: any) => {
-  const { user, dispatch, vendor } = props;
-  console.log(props);
-  const [users, setUsers] = useState<any>({});
+  const { user, vendor } = props;
   const [showEditProfile, setShowEditProfile] = useState(false);
   const [page, setPage] = useState("orders");
   const profileFormRef = useRef();
   const [info, setInfo] = useState("");
+  const [authUser, setAuthUser] = useState(null);
+  const [order, setOrder] = useState({})
+
+  const { profile, wallet } = useSelector((state: any) => state.user);
+  const users = profile.data;
+  const dispatch = useDispatch();
 
   const verifyAuth = () => {
     Auth.currentAuthenticatedUser()
       .then((user) => {
+        setAuthUser(user);
       })
       .catch((err) => {
         console.error(err);
@@ -41,18 +49,26 @@ const MyAccount = (props: any) => {
     formState: { errors },
   } = useForm();
 
-  const getProfile = async () => await dispatch({ type: "USER_PROFILE_FETCH", payload: {} });
+  useEffect(() => {
+    getProfile()
+  }, [dispatch]);
 
-  const updateProfile = async (firstName : string, lastName : string, emailId : string) => {
+  const getProfile = async () => {
+    dispatch({ type: FETCH_PROFILE_REQUEST, payload: {} });
+    userProfile().then((res: any) => dispatch({ type: FETCH_PROFILE_RESPONSE, payload: res }));
+  };
+
+
+  const updateProfile = async (firstName: string, lastName: string, emailId: string) => {
     await dispatch({ type: "USER_PROFILE_UPDATE", payload: { firstName, lastName, emailId } });
     await Auth.currentAuthenticatedUser()
-    .then((user) => {
-      Auth.updateUserAttributes(user, {name : firstName, middle_name : lastName}).then(res => console.log("attr", res));
-    })
-    .catch((err) => {
-      console.error(err);
-      window.location.href = "/";
-    });
+      .then((user) => {
+        Auth.updateUserAttributes(user, { name: firstName, middle_name: lastName }).then(res => console.log("attr", res));
+      })
+      .catch((err) => {
+        console.error(err);
+        window.location.href = "/";
+      });
   };
 
   const onProfileUpdate = async (data: any) => {
@@ -63,6 +79,14 @@ const MyAccount = (props: any) => {
     reload++;
   };
 
+  const createWalletEntry = async (amount: number) => {
+    await dispatch({ type: WALLET_ENTRY_REQUEST });
+    await rz_WalletEntry({ amount }).then(async (res: any) => {
+      await dispatch({ type: WALLET_ENTRY_RESPONSE, payload: res });
+    })
+    console.log('Complete');
+  }
+
   const pathMap: any = {
     '/myaccount/orders': 'orders',
     '/myaccount/offers': 'offers',
@@ -70,20 +94,13 @@ const MyAccount = (props: any) => {
     '/myaccount/favourites': 'favourites',
     '/myaccount/payments': 'payments',
     '/myaccount/track-order': 'track-order',
-    '/myaccount': 'orders'
+    '/myaccount/wallet': 'wallet',
+    '/myaccount': 'wallet'
   }
   useEffect(() => {
     verifyAuth();
-    getProfile();
     setPage(pathMap[window.location.pathname]);
-    reload++;
   }, []);
-
-  useEffect(() => {
-    user.then((data: any) => {
-      if(data.userData) setUsers(data.userData);
-    });
-  }, [reload]);
 
   return (
     <>
@@ -140,10 +157,10 @@ const MyAccount = (props: any) => {
                   <li className="nav-item">
                     <NavLink
                       className="nav-link"
-                      to="orders"
-                      onClick={() => setPage("orders")}
+                      to="wallet"
+                      onClick={() => setPage("wallet")}
                     >
-                      <i className="icofont-food-cart"></i> Orders
+                      <i className="icofont-wallet"></i> Wallet
                     </NavLink>
                   </li>
                   <li className="nav-item">
@@ -152,7 +169,16 @@ const MyAccount = (props: any) => {
                       to="calendar"
                       onClick={() => setPage("myCalendar")}
                     >
-                      <i className="icofont-calendar"></i> My Calendar
+                      <i className="icofont-calendar"></i> Calendar
+                    </NavLink>
+                  </li>
+                  <li className="nav-item">
+                    <NavLink
+                      className="nav-link"
+                      to="orders"
+                      onClick={() => setPage("orders")}
+                    >
+                      <i className="icofont-food-cart"></i> Orders
                     </NavLink>
                   </li>
                   <li className="nav-item">
@@ -210,6 +236,7 @@ const MyAccount = (props: any) => {
               {page === "payments" && <Payments />}
               {page === "addresses" && <Addresses />}
               {page === "track-order" && <TrackOrder />}
+              {page === "wallet" && users && <Wallet createWalletEntry={createWalletEntry} order={order} />}
               {page === "myCalendar" && <div className='p-4 bg-white shadow-sm'><Calendar
                 vendorDetail={vendor}
                 setSection={false}

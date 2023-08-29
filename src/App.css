@@ -20,14 +20,15 @@ Version: 1.0
 -- Footer
 -- Mobile Media
 -- Unauthorized
+-- Privacy Policy
 */
 
 /* Header */
-.userAvatarHeader{
- font-size: 10px !important;
- width: 35px !important;
- height: 35px !important;
- float : left !important;
+.userAvatarHeader {
+  font-size: 10px !important;
+  width: 35px !important;
+  height: 35px !important;
+  float: left !important;
 }
 
 .currentOrderInfo {
@@ -883,12 +884,14 @@ iframe.position-absolute {
 }
 
 /* detail */
-.foodTypeMultiSelector .MuiOutlinedInput-root fieldset legend{
+.foodTypeMultiSelector .MuiOutlinedInput-root fieldset legend {
   height: unset !important;
 }
-.foodTypeMultiSelector .MuiOutlinedInput-root fieldset legend span{
+
+.foodTypeMultiSelector .MuiOutlinedInput-root fieldset legend span {
   opacity: unset !important;
 }
+
 .MuiButtonBase-root.MuiPickersToolbar-penIconButton {
   display: none;
 }
@@ -1350,13 +1353,22 @@ iframe.position-absolute {
 }
 
 /* My Account */
-.nameAvatar{
+.walletRounded {
+  border-radius: 30px;
+}
+
+.moneyFont {
+  font-size: 50px;
+}
+
+.nameAvatar {
   padding: 0px 34% 0px 34%;
   margin-bottom: 10%;
 }
-.nameAvatar div{
- width : 80px;
- height: 80px;
+
+.nameAvatar div {
+  width: 80px;
+  height: 80px;
 }
 
 .noPadding {
@@ -2237,4 +2249,10 @@ footer {
 /** UnAuthorized **/
 .unauthorized-img {
   width: 300px !important;
+}
+
+/** Privacy Policy **/
+.brand-title {
+  color: #d82926;
+  font-weight: bold;
 }

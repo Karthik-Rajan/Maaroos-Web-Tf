@@ -25,6 +25,9 @@ import "./App.css";
 import Auth from "@aws-amplify/auth";
 import LoginModal from "./components/modals/LoginModal";
 import useTitle from './components/common/useTitle';
+import ContactUs from "./components/ContactUs";
+import PrivacyPolicy from "./components/PrivacyPolicy";
+import Terms from "./components/Terms";
 
 function App() {
   dotenv.config();
@@ -55,17 +58,20 @@ function App() {
       <Header showModal={showModal} />
       <Routes>
         <Route path="/" element={<Index />} />
-        <Route path="/listing" element={<List />} />
+        <Route path="listing" element={<List />} />
         <Route path="/404" element={<NotFound />} />
         <Route path="/extra" element={<Extra />} />
-        <Route path="/register" element={<Register />} />
+        {/* <Route path="/register" element={<Register />} /> */}
+        <Route path="/contact-us" element={<ContactUs />} />
+        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+        <Route path="/terms-conditions" element={<Terms />} />
         <Route
           path="/listing/:vId/detail"
           element={<Detail {...showModal} />}
         />
         <Route path="*" element={<NotFound />} />
         <Route
-          path="/myaccount*"
+          path="/myaccount/*"
           element={isAuthenticated ? <MyAccount /> : noAccess}
         />
         <Route

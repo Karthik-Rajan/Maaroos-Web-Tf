@@ -4,8 +4,10 @@ import CategoriesCarousel from "./common/CategoriesCarousel";
 import ProductItems from "./common/ProductItems";
 import SideBarHead from "./common/SideBarHead";
 import SideBarFilter from "./common/SideBarFilter";
-import { connect } from "react-redux";
+import { connect, useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
+import { FETCH_VENDOR_REQUEST, LOCATION, SET_LOCATION } from "../constants/vendor";
+import { vendorList } from "../actions/api";
 
 let input = {};
 
@@ -13,61 +15,44 @@ let location = {};
 let reload = 0;
 
 function List(props: any) {
-  let [list, setList] = useState([]);
+  // let [list, setList] = useState([]);
   let [sideBar, setSideBar] = useState(true);
-  let [loading, setLoading] = useState(true);
-  let [search, setSearch] = useState(input);
+  // let [loading, setLoading] = useState(true);
+  // let [search, setSearch] = useState(input);
+
+  const dispatch = useDispatch();
+  const { detail, list, location, myCalendar, reviews, search, loading } = useSelector((state: any) => state.vendor);
+  console.log({ detail, list, location, myCalendar, reviews, search, loading });
 
   const loc = useLocation();
 
   const callVendorList = async () => {
-    setLoading(true);
-
-    input = { ...input, ...search };
-    let payload = { location, search: input };
-
-    props.dispatch({
+    dispatch({ type: FETCH_VENDOR_REQUEST })
+    vendorList(search).then((res) => {
+      console.log(res);
+      dispatch({ type: LOCATION, payload: { list: res, loading: false } }
+      )
+    }
+    ).catch(() => dispatch({ type: LOCATION, payload: { list: [], loading: false } }));
+    dispatch({
       type: "LOCATION",
-      payload,
+      payload: search
     });
   };
-  const q: any = new URLSearchParams(loc.search).get("q");
 
   useEffect(() => {
-    props.vendor
-      .then((res: any) => {
-        setList(res.list);
-        setLoading(false);
-        location = res.location;
-        input = res.search;
-      })
-      .catch((err: any) => {
-        setList([]);
-        setLoading(false);
-      });
+    callVendorList();
+  }, [])
 
-    const coOrds = q ? q.split(",") : null;
-    if (coOrds) {
-      input = {
-        ...input,
-        lat: parseFloat(coOrds[0]),
-        lng: parseFloat(coOrds[1]),
-      };
-      setSearch(input);
-      callVendorList();
-    }
-    if (reload === 0) {
-      reload++;
-    }
-  }, [reload]);
+  useEffect(() => {
+  }, [])
 
   const onApplyFilter = async () => {
     callVendorList();
-    reload++;
   };
 
   const onFilter = (params: any) => {
-    setSearch({ ...search, ...params });
+    dispatch({ type: SET_LOCATION, payload: { ...search, ...params } })
   };
 
   const toggleSideBar = (value: boolean) => {
@@ -77,7 +62,7 @@ function List(props: any) {
   };
 
   const resetFilters = () => {
-    setSearch({ ...search });
+    // setSearch({ ...search });
   };
 
   return (
@@ -114,7 +99,7 @@ function List(props: any) {
             </Col>
             <Col md={9}>
               <CategoriesCarousel />
-              <ProductItems products={list ? list : []} loading={loading} />
+              <ProductItems products={list} loading={loading} />
             </Col>
           </Row>
         </Container>
@@ -123,9 +108,4 @@ function List(props: any) {
   );
 }
 
-function mapStateToProps(state: any) {
-  return {
-    vendor: state.vendor,
-  };
-}
-export default connect(mapStateToProps)(List);
+export default List

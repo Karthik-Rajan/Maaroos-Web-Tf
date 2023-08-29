@@ -37,7 +37,7 @@ const Review = (props: any) => {
                 fontSize={14}
                 disabled={true}
                 star={props.ratingStars}
-                getValue={() => {}}
+                getValue={() => { }}
               />
             </div>
             <h6 className="mb-1">
@@ -75,13 +75,13 @@ Review.propTypes = {
   profileLink: PropTypes.string.isRequired,
   reviewDate: PropTypes.string.isRequired,
   reviewText: PropTypes.string.isRequired,
-  likes: PropTypes.string.isRequired,
-  dislikes: PropTypes.string.isRequired,
+  likes: PropTypes.string,
+  dislikes: PropTypes.string,
   otherUsers: PropTypes.arrayOf(
     PropTypes.shape({
-      name: PropTypes.string.isRequired,
-      image: PropTypes.string.isRequired,
-      url: PropTypes.string.isRequired,
+      name: PropTypes.string,
+      image: PropTypes.string,
+      url: PropTypes.string,
     })
   ),
 };

@@ -12,7 +12,7 @@ import {
   Image,
   Badge,
 } from "react-bootstrap";
-import { Box, FormControl, InputLabel, MenuItem, Select, TextField } from '@mui/material';
+import { Box, FormControl, InputLabel, MenuItem, Rating, Select, TextField } from '@mui/material';
 import ItemsCarousel from "./common/ItemsCarousel";
 import GalleryCarousel from "./common/GalleryCarousel";
 import BestSeller from "./common/BestSeller";
@@ -21,7 +21,7 @@ import StarRating from "./common/StarRating";
 import RatingBar from "./common/RatingBar";
 import Review from "./common/Review";
 import Icofont from "react-icofont";
-import { connect } from "react-redux";
+import { connect, useSelector } from "react-redux";
 import { vendorDetailSkeleton } from "./skeletons";
 import NoAccess from "./NoAccess";
 import dayjs from 'dayjs';
@@ -33,12 +33,14 @@ import { useForm } from 'react-hook-form';
 import Calendar from "./common/Calendar";
 import BottomNavigation from "./common/BottomNavigation";
 import AddCalendarModal from "./common/AddCalendarModal";
+import CheckoutItem from "./common/CheckoutItem";
+import { VendorReviews } from "./common/VendorReviews";
 
 let reload = 0;
 
 const Detail = (props: any) => {
-
-  const { dispatch, vendorDetail, isAuthenticated } = props;
+  console.log(props);
+  const { dispatch, vendor, isAuthenticated } = props;
   let { vId } = useParams();
 
   const possibleMinDate = dayjs().add(1, 'week').format('YYYY-MM-DD');
@@ -59,37 +61,41 @@ const Detail = (props: any) => {
   const [calendarInput, setCalendarInput] = useState<CalendarInput>({ from: todayFrom, to: todayTo, types: [Types.BF, Types.DR, Types.LN] });
   const [calendarEvents, setCalendarEvents] = useState([]);
   const [section, setSection] = useState('listing');
-  const reviewUser = [];
+  const [reviews, setReviews] = useState([]);
   const [users] = useState([]);
   const [foodTypes, setFoodTypes] = useState<string[]>([]);
   const [fromDate, setFromDate] = useState<any>('');
   const [toDate, setToDate] = useState<any>('');
   const [showAddCalendar, setShowAddCalendar] = useState(false);
+  const [rating, setRating] = useState<any>(1);
+  const [isRated, setIsRated] = useState(false)
 
   const myCalendarRef = useRef();
   const ratingRef = useRef()
   const menuRef = useRef()
   const galleryRef = useRef()
   const contactRef = useRef();
+  const ratingFormRef = useRef();
+  const detailSelector = useSelector((state : any) => state.vendor);
+  const reviewlSelector = useSelector((state : any) => state.vendor);
 
   useEffect(() => {
     dispatch({ type: "DETAIL", payload: { vId } });
-    reload++
+    // dispatch({ type: "FETCH_REVIEW", payload: { vId } });
+    console.log('detailSelector', detailSelector);
+    console.log('reviewlSelector', reviewlSelector);
+    reload++;
   }, []);
 
   useEffect(() => {
-    vendorDetail.then((res: any) => {
-      if (res && res.type === 'DETAIL') {
-        setDetail(res.detail);
-        if (res && res.detail) {
-          reviewUser.push({
-            name: res.detail.first_name,
-            image: res.detail.profile_img,
-            url: "#",
-          });
-        }
-
+    vendor.then((res: any) => {
+      console.log('res',res);
+      if (res.detail && res.detail.type === 'DETAIL') {
+        setDetail(res.detail.detail);
         setIsLoading(false);
+      }
+      if (res.reviews && res.reviews.type === 'FETCH_VENDOR') {
+        setReviews(res.data);
       }
     });
   }, [reload]);
@@ -97,6 +103,7 @@ const Detail = (props: any) => {
   const getQty = ({ id, quantity }: any) => {
   };
   const getStarValue = ({ value }: any) => {
+    return 3.5
   };
 
   const setFilterInput = (type: Types) => {
@@ -115,18 +122,25 @@ const Detail = (props: any) => {
     });
   }
 
-  const onScheduleSubmit = (minDate : any, toDate : any, foodTypes : any) => {
-      let fromDate = dayjs(minDate).format('YYYY-MM-DD');
-      let tillDate = dayjs(toDate).format('YYYY-MM-DD');
-      dispatch({
-          type: "ADD_CALENDAR",
-          payload: { vId, fromDate, toDate : tillDate, foodTypes },
-      });
-      dispatch({
-        type: "MY_CALENDAR",
-        payload: { ...calendarInput, vId },
-      });
-      
+  const onScheduleSubmit = (minDate: any, toDate: any, foodTypes: any) => {
+    let fromDate = dayjs(minDate).format('YYYY-MM-DD');
+    let tillDate = dayjs(toDate).format('YYYY-MM-DD');
+    dispatch({
+      type: "ADD_CALENDAR",
+      payload: { vId, fromDate, toDate: tillDate, foodTypes },
+    });
+    dispatch({
+      type: "MY_CALENDAR",
+      payload: { ...calendarInput, vId },
+    });
+  }
+
+  const reviewSubmit = async (data: any) => {
+    const { comment } = data;
+    await dispatch({
+      type: "ADD_REVIEW",
+      payload: { vId, rating, comment },
+    });
   }
 
   return (
@@ -216,22 +230,22 @@ const Detail = (props: any) => {
                     </span>
                     <Nav id="pills-tab" className="detailPageTabMenuDesK">
                       <Nav.Item >
-                        <Nav.Link ref={myCalendarRef} eventKey="zero">My Calendar</Nav.Link>
+                        <Nav.Link ref={myCalendarRef} eventKey="zero" onClick={() => setSection('myCalendar')}>My Calendar</Nav.Link>
                       </Nav.Item>
                       <Nav.Item>
-                        <Nav.Link ref={menuRef} eventKey="first">Order Online</Nav.Link>
+                        <Nav.Link ref={menuRef} eventKey="first" onClick={() => setSection('menu')}>Order Online</Nav.Link>
                       </Nav.Item>
                       <Nav.Item>
-                        <Nav.Link ref={galleryRef} eventKey="second">Gallery</Nav.Link>
+                        <Nav.Link ref={galleryRef} eventKey="second" onClick={() => setSection('gallery')}>Gallery</Nav.Link>
                       </Nav.Item>
                       <Nav.Item>
-                        <Nav.Link ref={contactRef} eventKey="third">Restaurant Info</Nav.Link>
+                        <Nav.Link ref={contactRef} eventKey="third" onClick={() => setSection('contact')}>Restaurant Info</Nav.Link>
                       </Nav.Item>
-                      <Nav.Item>
+                      {/* <Nav.Item>
                         <Nav.Link eventKey="fourth">Book A Table</Nav.Link>
-                      </Nav.Item>
+                      </Nav.Item> */}
                       <Nav.Item>
-                        <Nav.Link ref={ratingRef} eventKey="fifth">Ratings & Reviews</Nav.Link>
+                        <Nav.Link ref={ratingRef} eventKey="fifth" onClick={() => setSection('rating')}>Ratings & Reviews</Nav.Link>
                       </Nav.Item>
                     </Nav>
                   </Col>
@@ -246,7 +260,7 @@ const Detail = (props: any) => {
                       <Tab.Content className="h-100">
                         <Tab.Pane eventKey="zero">
                           <Calendar
-                            vendorDetail={vendorDetail}
+                            vendorDetail={vendor}
                             setSection={setSection}
                             setFromDate={setFromDate}
                             setToDate={setToDate}
@@ -603,7 +617,7 @@ const Detail = (props: any) => {
                             </div>
                           </div>
                         </Tab.Pane>
-                        <Tab.Pane eventKey="fourth">
+                        {/* <Tab.Pane eventKey="fourth">
                           <div
                             id="book-a-table"
                             className="bg-white rounded shadow-sm p-4 mb-5 rating-review-select-page"
@@ -658,124 +672,18 @@ const Detail = (props: any) => {
                               </Form.Group>
                             </Form>
                           </div>
-                        </Tab.Pane>
+                        </Tab.Pane> */}
                         <Tab.Pane eventKey="fifth">
-                          <div
-                            id="ratings-and-reviews"
-                            className="bg-white rounded shadow-sm p-4 mb-4 clearfix restaurant-detailed-star-rating"
-                          >
-                            <div className="star-rating float-right">
-                              <StarRating
-                                fontSize={26}
-                                star={5}
-                                getValue={getStarValue}
-                              />
-                            </div>
-                            <h5 className="mb-0 pt-1">Rate this Place</h5>
-                          </div>
-                          <div className="bg-white rounded shadow-sm p-4 mb-4 clearfix graph-star-rating">
-                            <h5 className="mb-0 mb-4">Ratings and Reviews</h5>
-                            <div className="graph-star-rating-header">
-                              <div className="star-rating">
-                                <StarRating
-                                  fontSize={18}
-                                  disabled={true}
-                                  star={5}
-                                  getValue={getStarValue}
-                                />
-                                <b className="text-black ml-2">334</b>
-                              </div>
-                              <p className="text-black mb-4 mt-2">
-                                Rated 3.5 out of 5
-                              </p>
-                            </div>
-                            <div className="graph-star-rating-body">
-                              <RatingBar leftText="5 Star" barValue={56} />
-                              <RatingBar leftText="4 Star" barValue={23} />
-                              <RatingBar leftText="3 Star" barValue={11} />
-                              <RatingBar leftText="2 Star" barValue={6} />
-                              <RatingBar leftText="1 Star" barValue={4} />
-                            </div>
-                            <div className="graph-star-rating-footer text-center mt-3 mb-3">
-                              <Button
-                                type="button"
-                                variant="outline-primary"
-                                size="sm"
-                              >
-                                Rate and Review
-                              </Button>
-                            </div>
-                          </div>
-                          <div className="bg-white rounded shadow-sm p-4 mb-4 restaurant-detailed-ratings-and-reviews">
-                            <Link
-                              to="#"
-                              className="btn btn-outline-primary btn-sm float-right"
-                            >
-                              Top Rated
-                            </Link>
-                            <h5 className="mb-1">All Ratings and Reviews</h5>
-                            <Review
-                              image="/img/user/1.png"
-                              ImageAlt=""
-                              ratingStars={5}
-                              Name="Singh Osahan"
-                              profileLink="#"
-                              reviewDate="Tue, 20 Mar 2020"
-                              reviewText="Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classNameical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classNameical literature, discovered the undoubtable source. Lorem Ipsum comes from sections"
-                              likes="856M"
-                              dislikes="158K"
-                              otherUsers={users}
-                            />
-                            <hr />
-                            <Review
-                              image="/img/user/6.png"
-                              ImageAlt=""
-                              ratingStars={5}
-                              Name="Gurdeep Osahan"
-                              profileLink="#"
-                              reviewDate="Tue, 20 Mar 2020"
-                              reviewText="It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English."
-                              likes="88K"
-                              dislikes="1K"
-                              otherUsers={users}
-                            />
-                            <hr />
-                            <Link
-                              className="text-center w-100 d-block mt-4 font-weight-bold"
-                              to="#"
-                            >
-                              See All Reviews
-                            </Link>
-                          </div>
-                          <div className="bg-white rounded shadow-sm p-4 mb-5 rating-review-select-page">
-                            <h5 className="mb-4">Leave Comment</h5>
-                            <p className="mb-2">Rate the Place</p>
-                            <div className="mb-4">
-                              <div className="star-rating">
-                                <StarRating
-                                  fontSize={26}
-                                  star={5}
-                                  getValue={getStarValue}
-                                />
-                              </div>
-                            </div>
-                            <Form>
-                              <Form.Group>
-                                <Form.Label>Your Comment</Form.Label>
-                                <Form.Control as="textarea" />
-                              </Form.Group>
-                              <Form.Group>
-                                <Button
-                                  variant="primary"
-                                  size="sm"
-                                  type="button"
-                                >
-                                  {" "}
-                                  Submit Comment{" "}
-                                </Button>
-                              </Form.Group>
-                            </Form>
-                          </div>
+                          <VendorReviews
+                            ratingFormRef={ratingFormRef}
+                            handleSubmit={handleSubmit}
+                            reviewSubmit={reviewSubmit}
+                            rating={rating}
+                            register={register}
+                            setRating={setRating}
+                            review={detail.reviews}
+                            reviews={reviews}
+                          />
                         </Tab.Pane>
                       </Tab.Content>
                     </div>
@@ -790,7 +698,7 @@ const Detail = (props: any) => {
                               setShowAddCalendar(true);
                             }}>
                               {" "}
-                               Subscribe Now{" "}
+                              Subscribe Now{" "}
                             </Button>
                             <hr />
                             <h5 className="mb-4">Select Types</h5>
@@ -809,6 +717,32 @@ const Detail = (props: any) => {
                             }}>
                               <Icofont icon={calendarInput.types.includes(Types.DR) ? `check-circled` : `close-circled`} /> Dinner
                             </Link>
+                          </div>
+                        </>
+                      }
+                      {section === 'rating' &&
+                        <>
+                          <h5 className="mb-0 mb-4">Ratings and Reviews</h5>
+                          <div className="graph-star-rating-header">
+                            <div className="star-rating">
+                              <StarRating
+                                fontSize={18}
+                                disabled={true}
+                                star={3.5}
+                                getValue={getStarValue}
+                              />
+                              <b className="text-black ml-2">334 Reviews</b>
+                            </div>
+                            <p className="text-black mb-4 mt-2">
+                              Rated 3.5 out of 5
+                            </p>
+                          </div>
+                          <div className="graph-star-rating-body">
+                            <RatingBar leftText="5" barValue={56} />
+                            <RatingBar leftText="4" barValue={23} />
+                            <RatingBar leftText="3" barValue={11} />
+                            <RatingBar leftText="2" barValue={6} />
+                            <RatingBar leftText="1" barValue={4} />
                           </div>
                         </>
                       }
@@ -890,7 +824,7 @@ const Detail = (props: any) => {
                       </div>
                       } */}
                     </div>
-                    {/* <div className="bg-white rounded shadow-sm text-white mb-4 p-4 clearfix restaurant-detailed-earn-pts card-icon-overlap">
+                    <div className="bg-white rounded shadow-sm text-white mb-4 p-4 clearfix restaurant-detailed-earn-pts card-icon-overlap">
                       <Image
                         fluid
                         className="float-left mr-3"
@@ -1009,14 +943,14 @@ const Detail = (props: any) => {
                           src="https://dummyimage.com/352x504/ccc/ffffff.png&text=Google+ads"
                         />
                       </div>
-                    </div> */}
+                    </div>
                   </Col>
                 </Row>
               </Container>
             </section>
           </Tab.Container>
           <BottomNavigation myCalendarRef={myCalendarRef} ratingRef={ratingRef} galleryRef={galleryRef} contactRef={contactRef} menuRef={menuRef} />
-        </div>
+        </div >
       )
       }
     </>
@@ -1025,7 +959,7 @@ const Detail = (props: any) => {
 
 function mapStateToProps(state: any) {
   return {
-    vendorDetail: state.vendor,
+    ...state
   };
 }
 export default connect<any>(mapStateToProps)(Detail);

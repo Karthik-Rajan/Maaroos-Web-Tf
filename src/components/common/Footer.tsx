@@ -1,10 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types'; 
 import {Link} from 'react-router-dom';
 import {Row,Col,Container,Form,InputGroup,FormControl,Button,Image} from 'react-bootstrap';
 import FontAwesome from './FontAwesome';
+import { BottomNavigation, BottomNavigationAction } from '@mui/material';
+import Icofont from 'react-icofont';
 
 const Footer = (props : any) => {
+	const [page, setPage] = useState("");
     	return (
     		<>
 			    {/* <section className="section pt-5 pb-5 text-center bg-white">
@@ -48,11 +51,11 @@ const Footer = (props : any) => {
 			               <Col md={2} sm={4} xs={6}>
 			                  <h6 className="mb-3">About OE</h6>
 			                  <ul>
-			                     <li><Link to="#">About Us</Link></li>
-			                     <li><Link to="#">Culture</Link></li>
-			                     <li><Link to="#">Blog</Link></li>
-			                     <li><Link to="#">Careers</Link></li>
-			                     <li><Link to="#">Contact</Link></li>
+			                     <li><Link to="/privacy-policy">Privacy Policy</Link></li>
+			                     <li><Link to="/terms-conditions">Terms & Conditions</Link></li>
+			                     <li><Link to="/contact-us">Contact</Link></li>
+			                     {/* <li><Link to="#">Careers</Link></li> */}
+			                     {/* <li><Link to="#">Contact</Link></li> */}
 			                  </ul>
 			               </Col>
 			               <Col md={2} sm={4} xs={6}>
@@ -176,6 +179,7 @@ const Footer = (props : any) => {
 		            </Row>
 		         </div>
 		      </section> */}
+			 
 		      <footer className="pt-4 pb-4 text-center">
 		         <Container>
 		            <p className="mt-0 mb-0">{props.copyrightText}</p>
@@ -184,6 +188,17 @@ const Footer = (props : any) => {
 		            </small>
 		         </Container>
 		      </footer>
+			  <BottomNavigation
+					showLabels
+					value={""}
+					onChange={(event, newValue) => {
+						setPage(newValue);
+					}}
+					>
+					<BottomNavigationAction label="Home" icon={<Icofont icon="home"/>} />
+					<BottomNavigationAction label="Favorites" icon={<Icofont icon="favourite" />} />
+					<BottomNavigationAction label="Account" icon={<Icofont icon="users" />} />
+			 </BottomNavigation>
 		    </>
     	);
 }
@@ -209,7 +224,7 @@ Footer.defaultProps = {
 	popularCountries: [],
 	popularFHclassName:'mt-4 text-black',
 	popularFood: [],
-	copyrightText: '© Copyright 2022 Maaroos. All Rights Reserved',
+	copyrightText: '© Copyright 2023 Maaroos. All Rights Reserved',
 	madewithIconclassName: 'heart heart-icon text-danger',
 	firstLinkText: '',
 	firstLink: "",

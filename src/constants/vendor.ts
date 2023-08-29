@@ -1,7 +1,12 @@
-import { BASE_URL } from "./apis";
-const FETCH = "/vendor/list";
-const DETAIL = "/vendor/";
-const MY_CALENDAR = "/subscription";
-const ADD_CALENDAR = MY_CALENDAR + `/add`;
+import { BASE_URL as baseUrl } from "./apis";
+export const BASE_URL = baseUrl;
+export const FETCH = "/vendor/list";
+export const DETAIL = "/vendor/";
+export const MY_CALENDAR = "/subscription";
+export const ADD_CALENDAR = MY_CALENDAR + `/add`;
+export const FETCH_REVIEW = "/review";
+export const ADD_REVIEW = FETCH_REVIEW + "/add"
 
-export { FETCH, DETAIL, BASE_URL, MY_CALENDAR, ADD_CALENDAR };
+export const SET_LOCATION = "SET_LOCATION"
+export const FETCH_VENDOR_REQUEST = "FETCH_VENDOR_REQUEST";
+export const LOCATION = "LOCATION";
