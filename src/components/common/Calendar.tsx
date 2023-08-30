@@ -6,19 +6,13 @@ import interactionPlugin from "@fullcalendar/interaction";
 import listPlugin from '@fullcalendar/list';
 import dayjs from 'dayjs';
 import { CalendarInput, Types, TypesName } from '../../constants/types';
-import { connect } from 'react-redux';
-
-let reload = 0;
+import { useDispatch, useSelector } from 'react-redux';
+import { FETCH_MY_CALENDAR_RESPONSE } from '../../constants/vendor';
+import { fetchMySchedule } from '../../actions/api';
 
 const Calendar = (props: any) => {
-
-    const { vendorDetail, setShowAddCalendar, setFromDate, setToDate, dispatch, vId = null,possibleMinDate, possibleMaxDate } = props;
-
-    const todayFrom = dayjs().startOf('month').format('YYYY-MM-DD 00:00:00');
-    const todayTo = dayjs().add(1, 'month').format('YYYY-MM-DD 23:59:59');
-
-    const [calendarInput, setCalendarInput] = useState<CalendarInput>({ from: todayFrom, to: todayTo, types: [Types.BF, Types.DR, Types.LN] });
-
+    const { myCalendar } = useSelector((state: any) => state.vendor)
+    const { setShowAddCalendar, setFromDate, setToDate, vId = null, possibleMinDate, possibleMaxDate } = props;
     const view = {
         week: {
             type: 'listWeek',
@@ -46,10 +40,6 @@ const Calendar = (props: any) => {
             </>
         )
     }
-
-    useEffect(() => {
-        dispatch({ type: "MY_CALENDAR", payload: { ...calendarInput, vId } });
-    }, []);
 
     return <FullCalendar
         plugins={[
@@ -80,22 +70,14 @@ const Calendar = (props: any) => {
         views={view}
         // themeSystem={"bootstrap"}
         dayHeaders={true}
-        events={() => {
-            return vendorDetail.then((data: any) => {
-                if (data.type === 'MY_CALENDAR') {
-                    return data.detail;
-                }
-                return [];
-            })
-        }}
+        events={myCalendar}
         select={(date) => {
-            setShowAddCalendar(true);            
+            setShowAddCalendar(true);
             setFromDate(date.startStr);
             setToDate(date.endStr);
         }}
         eventContent={renderEventContent}
         eventClick={() => {
-            console.log("eventClick");
         }}
         eventsSet={() => {
 

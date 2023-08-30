@@ -66,7 +66,7 @@ function App() {
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         <Route path="/terms-conditions" element={<Terms />} />
         <Route
-          path="/listing/:vId/detail"
+          path="/listing/:vId/view"
           element={<Detail {...showModal} />}
         />
         <Route path="*" element={<NotFound />} />

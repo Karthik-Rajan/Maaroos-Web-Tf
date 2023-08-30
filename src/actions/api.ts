@@ -74,7 +74,6 @@ export const userProfileUpdate: any = async (
 }
 
 export const vendorDetail = async ({ vId }: any) => {
-  const response = { type: "DETAIL" };
   return await fetch(BASE_URL + DETAIL + vId, {
     ...methodProps("GET"),
     ...guestHeaders,
@@ -83,12 +82,11 @@ export const vendorDetail = async ({ vId }: any) => {
       return res.json();
     })
     .then((data) => {
-      return { ...response, detail: data };
+      return data;
     });
 };
 
 export const fetchMySchedule: any = async ({ vId, types, from, to, retry = true }: any) => {
-  const response = { type: "MY_CALENDAR" };
   return await fetch(BASE_URL + `/` + vId + MY_CALENDAR, {
     ...methodProps("POST", { types, from, to }),
     ...authHeaders(),
@@ -96,9 +94,7 @@ export const fetchMySchedule: any = async ({ vId, types, from, to, retry = true 
     .then((res) => {
       return res.json();
     })
-    .then((data) => {
-      return { ...response, detail: data };
-    })
+    .then((data) => data)
     .catch(async (err) => {
       /** Retry Authentication */
       if (retry) {
@@ -132,7 +128,6 @@ export const addSchedule: any = async ({ vId, fromDate, toDate, foodTypes, retry
 };
 
 export const addReview: any = async ({ vId, rating, comment, retry = true }: any) => {
-  const response = { type: "ADD_REVIEW" };
   return await fetch(BASE_URL + `/` + vId + ADD_REVIEW, {
     ...methodProps("POST", { rating, comment }),
     ...authHeaders(),
@@ -140,21 +135,18 @@ export const addReview: any = async ({ vId, rating, comment, retry = true }: any
     .then((res) => {
       return res.json();
     })
-    .then((data) => {
-      return { ...response, data };
-    })
+    .then((data) => data)
     .catch(async (err) => {
       /** Retry Authentication */
       if (err.code == 401 && retry) {
         const user = await refreshAuth();
         return await addReview({ vId, rating, comment, retry: false });
       }
-      console.log("User Login Err", err);
+      throw new Error("");
     });
 };
 
 export const fetchReview: any = async ({ vId, retry = true }: any) => {
-  const response = { type: "FETCH_REVIEW" };
   return await fetch(BASE_URL + `/` + vId + FETCH_REVIEW, {
     ...methodProps("GET"),
     ...authHeaders(),
@@ -162,9 +154,7 @@ export const fetchReview: any = async ({ vId, retry = true }: any) => {
     .then((res) => {
       return res.json();
     })
-    .then((data) => {
-      return { ...response, data };
-    })
+    .then((data) => data)
     .catch(async (err) => {
       /** Retry Authentication */
       if (err.code == 401 && retry) {

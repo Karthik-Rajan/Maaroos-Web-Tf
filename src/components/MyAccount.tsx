@@ -84,7 +84,6 @@ const MyAccount = (props: any) => {
     await rz_WalletEntry({ amount }).then(async (res: any) => {
       await dispatch({ type: WALLET_ENTRY_RESPONSE, payload: res });
     })
-    console.log('Complete');
   }
 
   const pathMap: any = {

@@ -1,5 +1,5 @@
 import { vendorList, vendorDetail, fetchMySchedule, addSchedule, addReview, fetchReview } from "../actions/api";
-import { FETCH_VENDOR_REQUEST, LOCATION, SET_LOCATION } from "../constants/vendor";
+import { ADD_CALENDAR_REQUEST, ADD_CALENDAR_RESPONSE, ADD_REVIEW_ERROR, ADD_REVIEW_REQUEST, FETCH_DETAIL_REQUEST, FETCH_DETAIL_RESPONSE, FETCH_MY_CALENDAR_RESPONSE, FETCH_REVIEW_RESPONSE, FETCH_VENDOR_REQUEST, LOCATION, SET_LOCATION } from "../constants/vendor";
 
 const commonState = {
   location: {
@@ -26,7 +26,8 @@ const initialState = {
   search: commonState.search,
   detail: commonState.detail,
   myCalendar: [],
-  reviews: []
+  reviews: [],
+  error: null
 };
 
 const reducer = (state = initialState, action: any) => {
@@ -36,31 +37,19 @@ const reducer = (state = initialState, action: any) => {
         ...state, loading: false, search: { ...state.search, ...action.payload }
       }
     case FETCH_VENDOR_REQUEST:
+    case FETCH_DETAIL_REQUEST:
+    case ADD_CALENDAR_REQUEST:
       return { ...state, loading: true }
     case LOCATION:
+    case FETCH_DETAIL_RESPONSE:
+    case FETCH_MY_CALENDAR_RESPONSE:
+    case FETCH_REVIEW_RESPONSE:
+    case ADD_REVIEW_REQUEST:
       return {
-        ...state, ...action.payload
+        ...state, loading: false, ...action.payload
       }
-    case "DETAIL":
-      return vendorDetail({ ...action.payload }).then((res: any) => {
-        return {
-          ...initialState,
-          detail: res
-        }
-      });
-    case "MY_CALENDAR":
-      return fetchMySchedule({ ...action.payload }).then((res: any) => res);
-    case "ADD_CALENDAR":
+    case ADD_CALENDAR_RESPONSE:
       return addSchedule({ ...action.payload }).then((res: any) => res);
-    case "ADD_REVIEW":
-      return addReview({ ...action.payload }).then((res: any) => res);
-    case "FETCH_REVIEW":
-      return fetchReview({ ...action.payload }).then((res: any) => {
-        return {
-          ...initialState,
-          reviews: res
-        }
-      })
     default:
       return state;
   }

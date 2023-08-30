@@ -15,29 +15,19 @@ let location = {};
 let reload = 0;
 
 function List(props: any) {
-  // let [list, setList] = useState([]);
-  let [sideBar, setSideBar] = useState(true);
-  // let [loading, setLoading] = useState(true);
-  // let [search, setSearch] = useState(input);
-
   const dispatch = useDispatch();
-  const { detail, list, location, myCalendar, reviews, search, loading } = useSelector((state: any) => state.vendor);
-  console.log({ detail, list, location, myCalendar, reviews, search, loading });
 
+  let [sideBar, setSideBar] = useState(true);
+  const { detail, list, location, myCalendar, reviews, search, loading } = useSelector((state: any) => state.vendor);
   const loc = useLocation();
 
   const callVendorList = async () => {
     dispatch({ type: FETCH_VENDOR_REQUEST })
     vendorList(search).then((res) => {
-      console.log(res);
       dispatch({ type: LOCATION, payload: { list: res, loading: false } }
       )
     }
     ).catch(() => dispatch({ type: LOCATION, payload: { list: [], loading: false } }));
-    dispatch({
-      type: "LOCATION",
-      payload: search
-    });
   };
 
   useEffect(() => {

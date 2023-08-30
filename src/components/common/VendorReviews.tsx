@@ -14,9 +14,10 @@ import {
 } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import Review from "./Review";
+import { useSelector } from "react-redux";
 
-export const VendorReviews = ({ review, ratingFormRef, handleSubmit, reviewSubmit, rating, register, setRating, reviews }: any) => {
- console.log(reviews);
+export const VendorReviews = ({ ratingFormRef, handleSubmit, reviewSubmit, rating, register, setRating }: any) => {
+  const { detail, reviews } = useSelector((state: any) => state.vendor);
   return (
     <>
       {/* <div
@@ -32,8 +33,8 @@ export const VendorReviews = ({ review, ratingFormRef, handleSubmit, reviewSubmi
                             </div>
                             <h5 className="mb-0 pt-1">Rate this Place</h5>
                           </div> */}
-      {!review &&
-        <div className="bg-white rounded shadow-sm p-4 mb-5 rating-review-select-page">
+      {!detail.review &&
+        <div className="bg-white rounded shadow-sm p-4 mb-5 rating-review-select-page" key={11}>
           <Form id="ratingForm" ref={ratingFormRef} onSubmit={handleSubmit(reviewSubmit)}>
             <h5 className="mb-4">Leave Comment</h5>
             <p className="mb-2">Rate the cook & food</p>
@@ -70,7 +71,7 @@ export const VendorReviews = ({ review, ratingFormRef, handleSubmit, reviewSubmi
           </Form>
         </div>
       }
-      <div className="bg-white rounded shadow-sm p-4 mb-4 restaurant-detailed-ratings-and-reviews">
+      <div className="bg-white rounded shadow-sm p-4 mb-4 restaurant-detailed-ratings-and-reviews" key={12}>
         <Link
           to="#"
           className="btn btn-outline-primary btn-sm float-right"
@@ -78,22 +79,20 @@ export const VendorReviews = ({ review, ratingFormRef, handleSubmit, reviewSubmi
           Top Rated
         </Link>
         <h5 className="mb-1">All Ratings and Reviews</h5>
-        {reviews && reviews.map((review: any) =>
-          <>
-            <Review
-              image={review.profile_img}
-              ImageAlt={review.first_name + ' ' + review.last_name}
-              ratingStars={5}
-              Name={review.first_name + ' ' + review.last_name}
-              profileLink="#"
-              reviewDate={review.created_at}
-              reviewText={review.comment}
-            // likes="856M"
-            // dislikes="158K"
-            // otherUsers={users}
-            />
-            <hr />
-          </>
+        {reviews && reviews.map((review: any, index: number) =>
+          <Review
+            key={index}
+            image={review.users?.profile_img}
+            ImageAlt={review.user?.first_name + ' ' + review.user?.second_name}
+            ratingStars={review.rating}
+            Name={review.user?.first_name + ' ' + review.user?.second_name}
+            profileLink="#"
+            reviewDate={review.created_at}
+            reviewText={review.comment}
+          // likes="856M"
+          // dislikes="158K"
+          // otherUsers={users}
+          />
         )}
         <Link
           className="text-center w-100 d-block mt-4 font-weight-bold"

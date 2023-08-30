@@ -1,6 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { connect } from "react-redux";
-
 import {
   Typography,
   Box,
@@ -11,16 +9,11 @@ import {
   Rating,
 } from "@mui/material";
 import SearchBar from "./SearchBar";
+import { useSelector } from "react-redux";
 
 const QuickFilter = (props: any) => {
-  let input = {};
-  useEffect(() => {
-    props.vendor.then((res: any) => {
-      input = res.search;
-    });
-  }, [props.vendor]);
-
-  /* Type Switch */
+  const { search } = useSelector((state: any) => state.vendor);
+  const input = search;
 
   /* Distance Slider */
   const kms = [5, 10, 20, 30, 40, 50];
@@ -129,9 +122,5 @@ const QuickFilter = (props: any) => {
     </>
   );
 };
-const mapStateToProps = (state: any) => {
-  return {
-    vendor: state.vendor,
-  };
-};
-export default connect(mapStateToProps)(QuickFilter);
+
+export default QuickFilter

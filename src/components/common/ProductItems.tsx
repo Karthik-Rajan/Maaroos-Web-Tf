@@ -17,7 +17,7 @@ const ProductItems = (props: any) => {
               imageAlt={product.name}
               image={product.logo_url || ""}
               imageClass="img-fluid item-img"
-              linkUrl={product.id + `/detail`}
+              linkUrl={product.id + `/view`}
               offerText="65% off | Use Coupon OSAHAN50"
               time={"0.00"}
               price={"0.0"}
