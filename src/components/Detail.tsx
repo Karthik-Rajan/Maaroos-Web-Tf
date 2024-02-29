@@ -4,39 +4,32 @@ import {
   Row,
   Col,
   Container,
-  Form,
-  InputGroup,
   Button,
   Tab,
   Nav,
   Image,
   Badge,
 } from "react-bootstrap";
-import { Alert, Box, FormControl, InputLabel, MenuItem, Rating, Select, Snackbar, TextField } from '@mui/material';
-import ItemsCarousel from "./common/ItemsCarousel";
+import { Alert, Snackbar } from '@mui/material';
 import GalleryCarousel from "./common/GalleryCarousel";
-import BestSeller from "./common/BestSeller";
-import QuickBite from "./common/QuickBite";
 import StarRating from "./common/StarRating";
 import RatingBar from "./common/RatingBar";
-import Review from "./common/Review";
 import Icofont from "react-icofont";
-import { connect, useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { vendorDetailSkeleton } from "./skeletons";
-import NoAccess from "./NoAccess";
 import dayjs from 'dayjs';
-import { CalendarInput, Types, TypesName } from "../constants/types";
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { MobileDatePicker } from '@mui/x-date-pickers/MobileDatePicker';
+import { CalendarInput, Types } from "../constants/types";
 import { useForm } from 'react-hook-form';
 import Calendar from "./common/Calendar";
 import BottomNavigation from "./common/BottomNavigation";
 import AddCalendarModal from "./common/AddCalendarModal";
 import CheckoutItem from "./common/CheckoutItem";
 import { VendorReviews } from "./common/VendorReviews";
-import { ADD_REVIEW_ERROR, ADD_REVIEW_REQUEST, FETCH_DETAIL_REQUEST, FETCH_DETAIL_RESPONSE, FETCH_MY_CALENDAR_RESPONSE, FETCH_REVIEW_RESPONSE } from "../constants/vendor";
-import { addReview, fetchMySchedule, fetchReview, vendorDetail } from "../actions/api";
+import { ADD_CALENDAR_REQUEST, ADD_CALENDAR_RESPONSE, ADD_REVIEW_REQUEST, FETCH_DETAIL_REQUEST, FETCH_DETAIL_RESPONSE, FETCH_MY_CALENDAR_RESPONSE, FETCH_REVIEW_RESPONSE } from "../constants/vendor";
+import { addReview, addSchedule, fetchMySchedule, fetchReview, vendorDetail } from "../actions/api";
+import { VendorInfo } from "./common/VendorInfo";
+import VendorMenu from "./common/VendorMenu";
+import { FavoriteBorderOutlined, FavoriteOutlined } from '@mui/icons-material';
 
 const Detail = () => {
   let { vId } = useParams();
@@ -51,7 +44,7 @@ const Detail = () => {
   const todayFrom = dayjs().startOf('month').format('YYYY-MM-DD 00:00:00');
   const todayTo = dayjs().add(1, 'month').format('YYYY-MM-DD 23:59:59');
   const [calendarInput, setCalendarInput] = useState<CalendarInput>({ from: todayFrom, to: todayTo, types: [Types.BF, Types.DR, Types.LN] });
-  const [section, setSection] = useState('listing');
+  const [section, setSection] = useState('myCalendar');
   const [fromDate, setFromDate] = useState<any>('');
   const [toDate, setToDate] = useState<any>('');
   const [showAddCalendar, setShowAddCalendar] = useState(false);
@@ -62,32 +55,40 @@ const Detail = () => {
   const galleryRef = useRef()
   const contactRef = useRef();
   const ratingFormRef = useRef();
-  const { detail, reviews, loading, error } = useSelector((state: any) => state.vendor);
+  const { detail, loading, error } = useSelector((state: any) => state.vendor);
+  const { profile } = useSelector((state: any) => state.user);
   const dispatch = useDispatch();
 
   useEffect(() => {
     dispatch({ type: FETCH_DETAIL_REQUEST });
-    vendorDetail({ vId })
+    vendorDetail({ vId, userId: profile?.id })
       .then(res => {
         dispatch({ type: FETCH_DETAIL_RESPONSE, payload: { detail: res } })
-        fetchReview({ vId })
-          .then((res: any) => dispatch({ type: FETCH_REVIEW_RESPONSE, payload: { reviews: res } }))
-          .catch((err: any) => dispatch({ type: FETCH_REVIEW_RESPONSE, payload: { reviews: [] } }));
+        fetchReviews(vId)
         fetchMyCalendar(calendarInput);
       })
-      .catch(err => dispatch({ type: FETCH_DETAIL_RESPONSE, payload: {} }));
+      .catch(err => dispatch({ type: FETCH_DETAIL_RESPONSE, payload: { loading: true } }));
   }, []);
 
   const getQty = ({ id, quantity }: any) => {
   };
+
   const getStarValue = ({ value }: any) => {
     return 3.5
   };
 
+  const fetchReviews = (vId: any) => {
+    fetchReview({ vId })
+      .then((res: any) => dispatch({ type: FETCH_REVIEW_RESPONSE, payload: { reviews: res } }))
+      .catch((err: any) => dispatch({ type: FETCH_REVIEW_RESPONSE, payload: { reviews: [] } }));
+  }
+
   const fetchMyCalendar = (calendarInput: any) => {
     fetchMySchedule({ ...calendarInput, vId })
       .then((res: any) => dispatch({ type: FETCH_MY_CALENDAR_RESPONSE, payload: { myCalendar: res } })
-      ).catch((err: any) => dispatch({ type: FETCH_MY_CALENDAR_RESPONSE, payload: { myCalendar: {} } }))
+      ).catch((err: any) => dispatch({
+        type: FETCH_MY_CALENDAR_RESPONSE, payload: { error: "Sorry! Couldn't add your subscription, Kindly try again!!" }
+      }))
   }
 
   const setFilterInput = (type: Types) => {
@@ -103,22 +104,38 @@ const Detail = () => {
     fetchMyCalendar(updatedInputs);
   }
 
-  const onScheduleSubmit = (minDate: any, toDate: any, foodTypes: any) => {
+  const onScheduleSubmit = async (minDate: any, toDate: any, foodTypes: any) => {
     let fromDate = dayjs(minDate).format('YYYY-MM-DD');
     let tillDate = dayjs(toDate).format('YYYY-MM-DD');
     dispatch({
-      type: "ADD_CALENDAR",
-      payload: { vId, fromDate, toDate: tillDate, foodTypes },
+      type: ADD_CALENDAR_REQUEST
     });
-    fetchMyCalendar(calendarInput);
+    await addSchedule({ vId, fromDate, toDate: tillDate, foodTypes })
+      .then((res: any) => {
+        dispatch({
+          type: ADD_CALENDAR_RESPONSE,
+          payload: { myCalendar: res, loading: false },
+        });
+      })
+      .catch(() => {
+        dispatch({
+          type: ADD_CALENDAR_REQUEST,
+          payload: { error: "Sorry! Couldn't add your subscription, Kindly try again!!", loading: false }
+        });
+      })
+
+    await fetchMyCalendar(calendarInput);
   }
 
-  const reviewSubmit = async (data: any) => {
+  const reviewSubmit = (data: any) => {
     const { comment } = data;
     addReview({ vId, rating, comment })
-      .then((res: any) => dispatch({
-        type: ADD_REVIEW_REQUEST
-      }))
+      .then((res: any) => {
+        dispatch({
+          type: ADD_REVIEW_REQUEST
+        })
+        fetchReviews(vId)
+      })
       .catch((err: any) => {
         dispatch({
           type: ADD_REVIEW_REQUEST,
@@ -174,8 +191,7 @@ const Detail = () => {
                           <Badge variant="success">OPEN</Badge>
                         </p>
                         <p className="text-white mb-0">
-                          <Icofont icon="food-cart" /> North Indian, Chinese, Fast
-                          Food, South Indian
+                          <Icofont icon="food-cart" /> {detail.tags}
                         </p>
                       </div>
                     </Col>
@@ -211,8 +227,8 @@ const Detail = () => {
                           className="border-light-btn mr-1"
                           type="button"
                         >
-                          <Icofont icon="heart" className="text-danger" /> Mark as
-                          Favourite
+                          {/* <Icofont icon="heart-outlined" className="text-danger" style={{ fontSize: '18px' }} /> */}
+                          {false ? <FavoriteBorderOutlined className="brand-title" /> : <FavoriteOutlined className="brand-title" />}
                         </Button>
                         <Button
                           variant="light"
@@ -232,7 +248,7 @@ const Detail = () => {
                           <Nav.Link ref={myCalendarRef} eventKey="zero" onClick={() => setSection('myCalendar')}>My Calendar</Nav.Link>
                         </Nav.Item>
                         <Nav.Item>
-                          <Nav.Link ref={menuRef} eventKey="first" onClick={() => setSection('menu')}>Order Online</Nav.Link>
+                          <Nav.Link ref={menuRef} eventKey="first" onClick={() => setSection('menu')}>Food Menu</Nav.Link>
                         </Nav.Item>
                         <Nav.Item>
                           <Nav.Link ref={galleryRef} eventKey="second" onClick={() => setSection('gallery')}>Gallery</Nav.Link>
@@ -269,351 +285,14 @@ const Detail = () => {
                               fetchMyCalendar={fetchMyCalendar}
                             />
                           </Tab.Pane>
-                          <Tab.Pane eventKey="first">
-                            <h5 className="mb-4">Recommended</h5>
-                            <Form className="explore-outlets-search mb-4">
-                              <InputGroup>
-                                <Form.Control
-                                  type="text"
-                                  placeholder="Search for dishes..."
-                                />
-                                <InputGroup.Append>
-                                  <Button type="button" variant="link">
-                                    <Icofont icon="search" />
-                                  </Button>
-                                </InputGroup.Append>
-                              </InputGroup>
-                            </Form>
-                            <h6 className="mb-3">
-                              Most Popular{" "}
-                              <Badge variant="success">
-                                {" "}
-                                <Icofont icon="tags" /> 15% Off All Items{" "}
-                              </Badge>
-                            </h6>
-                            <ItemsCarousel />
-
-                            <Row>
-                              <h5 className="mb-4 mt-3 col-md-12">
-                                Best Sellers
-                              </h5>
-                              <Col md={4} sm={6} className="mb-4">
-                                <BestSeller
-                                  id={1}
-                                  title="World Famous"
-                                  subTitle="North Indian • American • Pure veg"
-                                  imageAlt="Product"
-                                  image="img/list/1.png"
-                                  imageClass="img-fluid item-img"
-                                  price={250}
-                                  priceUnit="$"
-                                  isNew={true}
-                                  showPromoted={true}
-                                  promotedVariant="dark"
-                                  favIcoIconColor="text-danger"
-                                  rating="3.1 (300+)"
-                                  getValue={getQty}
-                                />
-                              </Col>
-
-                              <Col md={4} sm={6} className="mb-4">
-                                <BestSeller
-                                  id={2}
-                                  title="The osahan Restaurant"
-                                  subTitle="North Indian • American • Pure veg"
-                                  imageAlt="Product"
-                                  image="img/list/6.png"
-                                  imageClass="img-fluid item-img"
-                                  price={250}
-                                  priceUnit="$"
-                                  qty={1}
-                                  showPromoted={true}
-                                  promotedVariant="dark"
-                                  favIcoIconColor="text-danger"
-                                  rating="3.1 (300+)"
-                                  getValue={getQty}
-                                />
-                              </Col>
-
-                              <Col md={4} sm={6} className="mb-4">
-                                <BestSeller
-                                  id={3}
-                                  title="Bite Me Sandwiches"
-                                  subTitle="North Indian • American • Pure veg"
-                                  imageAlt="Product"
-                                  image="img/list/3.png"
-                                  imageClass="img-fluid item-img"
-                                  price={250}
-                                  priceUnit="$"
-                                  showPromoted={true}
-                                  promotedVariant="dark"
-                                  favIcoIconColor="text-danger"
-                                  rating="3.1 (300+)"
-                                  getValue={getQty}
-                                />
-                              </Col>
-                            </Row>
-                            <Row>
-                              <h5 className="mb-4 mt-3 col-md-12">
-                                Quick Bites{" "}
-                                <small className="h6 text-black-50">
-                                  3 ITEMS
-                                </small>
-                              </h5>
-                              <Col md={12}>
-                                <div className="bg-white rounded border shadow-sm mb-4">
-                                  <QuickBite
-                                    id={1}
-                                    title="Chicken Tikka Sub"
-                                    price={250}
-                                    priceUnit="$"
-                                    getValue={getQty}
-                                  />
-                                  <QuickBite
-                                    id={2}
-                                    title="Cheese corn Roll"
-                                    price={600}
-                                    showBadge={true}
-                                    badgeText="BEST SELLER"
-                                    qty={1}
-                                    priceUnit="$"
-                                    getValue={getQty}
-                                  />
-                                  <QuickBite
-                                    id={3}
-                                    title="Chicken Tikka Sub"
-                                    price={250}
-                                    showBadge={true}
-                                    badgeText="Pure Veg"
-                                    badgeVariant="success"
-                                    qty={2}
-                                    priceUnit="$"
-                                    getValue={getQty}
-                                  />
-                                </div>
-                              </Col>
-                            </Row>
-                            <Row>
-                              <h5 className="mb-4 mt-3 col-md-12">
-                                Starters{" "}
-                                <small className="h6 text-black-50">
-                                  3 ITEMS
-                                </small>
-                              </h5>
-                              <Col md={12}>
-                                <div className="bg-white rounded border shadow-sm mb-4">
-                                  <QuickBite
-                                    id={1}
-                                    itemClass="menu-list"
-                                    image="/img/5.jpg"
-                                    title="Chicken Tikka Sub"
-                                    price={250}
-                                    priceUnit="$"
-                                    getValue={getQty}
-                                  />
-                                  <QuickBite
-                                    id={2}
-                                    itemClass="menu-list"
-                                    title="Cheese corn Roll"
-                                    image="/img/2.jpg"
-                                    price={600}
-                                    showBadge={true}
-                                    badgeText="BEST SELLER"
-                                    qty={1}
-                                    priceUnit="$"
-                                    getValue={getQty}
-                                  />
-                                  <QuickBite
-                                    id={3}
-                                    itemClass="menu-list"
-                                    image="/img/3.jpg"
-                                    title="Chicken Tikka Sub"
-                                    price={250}
-                                    showBadge={true}
-                                    badgeText="Pure Veg"
-                                    badgeVariant="success"
-                                    priceUnit="$"
-                                    getValue={getQty}
-                                  />
-                                </div>
-                              </Col>
-                            </Row>
-                            <Row>
-                              <h5 className="mb-4 mt-3 col-md-12">
-                                Soups{" "}
-                                <small className="h6 text-black-50">
-                                  8 ITEMS
-                                </small>
-                              </h5>
-                              <Col md={12}>
-                                <div className="bg-white rounded border shadow-sm">
-                                  <QuickBite
-                                    id={1}
-                                    title="Chicken Tikka Sub"
-                                    price={250}
-                                    priceUnit="$"
-                                    getValue={getQty}
-                                  />
-                                  <QuickBite
-                                    id={2}
-                                    title="Cheese corn Roll"
-                                    price={600}
-                                    showBadge={true}
-                                    badgeText="BEST SELLER"
-                                    qty={1}
-                                    priceUnit="$"
-                                    getValue={getQty}
-                                  />
-                                  <QuickBite
-                                    id={3}
-                                    title="Chicken Tikka Sub"
-                                    price={250}
-                                    showBadge={true}
-                                    badgeText="Pure Veg"
-                                    badgeVariant="success"
-                                    priceUnit="$"
-                                    getValue={getQty}
-                                  />
-                                  <QuickBite
-                                    id={1}
-                                    title="Chicken Tikka Sub"
-                                    price={250}
-                                    priceUnit="$"
-                                    getValue={getQty}
-                                  />
-                                  <QuickBite
-                                    id={2}
-                                    title="Cheese corn Roll"
-                                    price={600}
-                                    showBadge={true}
-                                    badgeText="BEST SELLER"
-                                    priceUnit="$"
-                                    getValue={getQty}
-                                  />
-                                  <QuickBite
-                                    id={3}
-                                    title="Chicken Tikka Sub"
-                                    price={250}
-                                    showBadge={true}
-                                    badgeText="Pure Veg"
-                                    badgeVariant="success"
-                                    priceUnit="$"
-                                    getValue={getQty}
-                                  />
-                                </div>
-                              </Col>
-                            </Row>
-                          </Tab.Pane>
+                          <Tab.Pane eventKey="first"></Tab.Pane>
                           <Tab.Pane eventKey="second">
                             <div className="position-relative">
                               <GalleryCarousel />
                             </div>
                           </Tab.Pane>
                           <Tab.Pane eventKey="third">
-                            <div
-                              id="restaurant-info"
-                              className="bg-white rounded shadow-sm p-4 mb-4"
-                            >
-                              <div className="address-map float-right ml-5">
-                                <div className="mapouter">
-                                  <div className="gmap_canvas">
-                                    <iframe
-                                      title="addressMap"
-                                      width="300"
-                                      height="170"
-                                      id="gmap_canvas"
-                                      src="https://maps.google.com/maps?q=university%20of%20san%20francisco&t=&z=9&ie=UTF8&iwloc=&output=embed"
-                                      frameBorder="0"
-                                      scrolling="no"
-                                    ></iframe>
-                                  </div>
-                                </div>
-                              </div>
-                              <h5 className="mb-4">Restaurant Info</h5>
-                              <p className="mb-3">
-                                Jagjit Nagar, Near Railway Crossing,
-                                <br /> Near Model Town, Ludhiana, PUNJAB
-                              </p>
-                              <p className="mb-2 text-black">
-                                <Icofont icon="phone-circle text-primary mr-2" />{" "}
-                                +91 01234-56789, +91 01234-56789
-                              </p>
-                              <p className="mb-2 text-black">
-                                <Icofont icon="email text-primary mr-2" />{" "}
-                                iamosahan@gmail.com, osahaneat@gmail.com
-                              </p>
-                              <p className="mb-2 text-black">
-                                <Icofont icon="clock-time text-primary mr-2" />{" "}
-                                Today 11am – 5pm, 6pm – 11pm
-                                <Badge variant="success" className="ml-1">
-                                  {" "}
-                                  OPEN NOW{" "}
-                                </Badge>
-                              </p>
-                              <hr className="clearfix" />
-                              <p className="text-black mb-0">
-                                You can also check the 3D view by using our menue
-                                map clicking here &nbsp;&nbsp;&nbsp;{" "}
-                                <Link
-                                  className="text-info font-weight-bold"
-                                  to="#"
-                                >
-                                  Venue Map
-                                </Link>
-                              </p>
-                              <hr className="clearfix" />
-                              <h5 className="mt-4 mb-4">More Info</h5>
-                              <p className="mb-3">
-                                Dal Makhani, Panneer Butter Masala, Kadhai Paneer,
-                                Raita, Veg Thali, Laccha Paratha, Butter Naan
-                              </p>
-                              <div className="border-btn-main mb-4">
-                                <Link
-                                  className="border-btn text-success mr-2"
-                                  to="#"
-                                >
-                                  <Icofont icon="check-circled" /> Breakfast
-                                </Link>
-                                <Link
-                                  className="border-btn text-danger mr-2"
-                                  to="#"
-                                >
-                                  <Icofont icon="close-circled" /> No Alcohol
-                                  Available
-                                </Link>
-                                <Link
-                                  className="border-btn text-success mr-2"
-                                  to="#"
-                                >
-                                  <Icofont icon="check-circled" /> Vegetarian Only
-                                </Link>
-                                <Link
-                                  className="border-btn text-success mr-2"
-                                  to="#"
-                                >
-                                  <Icofont icon="check-circled" /> Indoor Seating
-                                </Link>
-                                <Link
-                                  className="border-btn text-success mr-2"
-                                  to="#"
-                                >
-                                  <Icofont icon="check-circled" /> Breakfast
-                                </Link>
-                                <Link
-                                  className="border-btn text-danger mr-2"
-                                  to="#"
-                                >
-                                  <Icofont icon="close-circled" /> No Alcohol
-                                  Available
-                                </Link>
-                                <Link
-                                  className="border-btn text-success mr-2"
-                                  to="#"
-                                >
-                                  <Icofont icon="check-circled" /> Vegetarian Only
-                                </Link>
-                              </div>
-                            </div>
+                            <VendorInfo />
                           </Tab.Pane>
                           <Tab.Pane eventKey="fifth">
                             <VendorReviews
@@ -687,25 +366,27 @@ const Detail = () => {
                           </>
                         }
                       </div>
-                      <div className="bg-white rounded shadow-sm text-white mb-4 p-4 clearfix restaurant-detailed-earn-pts card-icon-overlap">
-                        <Image
-                          fluid
-                          className="float-left mr-3"
-                          src="/img/earn-score-icon.png"
-                        />
-                        <h6 className="pt-0 text-primary mb-1 font-weight-bold">
-                          OFFER
-                        </h6>
-                        <p className="mb-0">
-                          60% off on orders above $99 | Use coupon{" "}
-                          <span className="text-danger font-weight-bold">
-                            OSAHAN50
-                          </span>
-                        </p>
-                        <div className="icon-overlap">
-                          <Icofont icon="sale-discount" />
+                      {section === 'myCalendar' &&
+                        <div className="bg-white rounded shadow-sm text-white mb-4 p-4 clearfix restaurant-detailed-earn-pts card-icon-overlap">
+                          <Image
+                            fluid
+                            className="float-left mr-3"
+                            src="/img/earn-score-icon.png"
+                          />
+                          <h6 className="pt-0 text-primary mb-1 font-weight-bold">
+                            OFFER
+                          </h6>
+                          <p className="mb-0">
+                            60% off on orders above $99 | Use coupon{" "}
+                            <span className="text-danger font-weight-bold">
+                              OSAHAN50
+                            </span>
+                          </p>
+                          <div className="icon-overlap">
+                            <Icofont icon="sale-discount" />
+                          </div>
                         </div>
-                      </div>
+                      }
                       <div className="generator-bg rounded shadow-sm mb-4 p-4 osahan-cart-item">
                         <h5 className="mb-1 text-white">Your Order</h5>
                         <p className="mb-4 text-white">6 Items</p>

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { Col } from 'react-bootstrap';
 import { Row } from 'react-bootstrap';
 import { Container } from 'react-bootstrap';
@@ -6,25 +6,28 @@ import { Image } from 'react-bootstrap';
 import useRazorpay from "react-razorpay";
 import { Chip } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
-import { rechargeWallet } from '../../actions/api';
+import { rechargeWallet, walletStatements } from '../../actions/api';
+import { CurrencyRupee } from '@mui/icons-material';
+import { PAYMENT_CALLBACK, WALLET_STATEMENT_RESPONSE } from '../../constants/user';
+import { Transaction } from '../common/Transaction';
+import { BASE_URL } from '../../constants/apis';
 
 const Wallet = (props: any) => {
-  const { profile, wallet } = useSelector((state: any) => state.user);
+  let { profile, wallet, statements } = useSelector((state: any) => state.user);
   const dispatch = useDispatch();
 
-  const { mobile, email, first_name, second_name, id } = profile.data;
+  let { mobile, email, first_name, second_name, id, wallet_balance } = profile.data;
+
+  useEffect(() => {
+    fetchStatements();
+  }, []);
   const name = first_name + ' ' + second_name;
   const getQty = () => { }
-
   const [Razorpay] = useRazorpay();
-
-
   const handlePayment = async (amount: number) => {
     let options: any = {};
     // await props.createWalletEntry(amount * 100);
-    console.log('handlePayment', wallet);
 
-    console.log('wallet', wallet);
     options = await {
       key: "rzp_test_JLOs2SaWEERrUz",
       amount: amount * 100,
@@ -34,6 +37,7 @@ const Wallet = (props: any) => {
       image: "https://web.maaroos.com/img/logo.png",
       order_id: undefined,
       handler: (res: any) => {
+        console.log(res)
         rechargeWallet({
           amount,
           medium_payment_id: res.razorpay_payment_id,
@@ -43,6 +47,12 @@ const Wallet = (props: any) => {
           customer_mobile: mobile,
           customer_id: id
         })
+          .then(async () => {
+            setTimeout(() => {
+              props.getProfile();
+              fetchStatements()
+            }, 2500)
+          })
       },
       prefill: {
         name,
@@ -56,9 +66,15 @@ const Wallet = (props: any) => {
         color: "#d82926",
       },
     };
-    console.log(options);
     const rzpay = await new Razorpay(options);
     await rzpay.open();
+  }
+
+  const fetchStatements = async () => {
+    await walletStatements()
+      .then((data: any) => {
+        dispatch({ type: WALLET_STATEMENT_RESPONSE, payload: { statements: data } });
+      })
   }
 
   return <>
@@ -78,10 +94,10 @@ const Wallet = (props: any) => {
                   src="/img/wallet_icon.png"
                 />
                 <h6 className="text-white font-weight-bold text-right mb-2">
-                  Closing Balance : <span className="moneyFont">$456.42</span>
+                  Closing Balance : <span className="moneyFont"><CurrencyRupee />{wallet_balance | 0.0}</span>
                 </h6>
                 <p className="text-white mb-0 text-right">
-                  On-Hold Amount : <span className="">$50.00</span>
+                  On-Hold Amount : <span className=""><CurrencyRupee />0.0</span>
                 </p>
 
                 {/* <div className="float-right"> */}
@@ -97,6 +113,8 @@ const Wallet = (props: any) => {
               </div>
             </div>
             <h6 className="font-weight-bold text-left mb-2">Recent Transactions</h6>
+            <br />
+            <Transaction statements={statements} />
           </div>
         </Col>
       </Row>

@@ -28,6 +28,8 @@ import useTitle from './components/common/useTitle';
 import ContactUs from "./components/ContactUs";
 import PrivacyPolicy from "./components/PrivacyPolicy";
 import Terms from "./components/Terms";
+import { BottomNavigation, BottomNavigationAction } from "@mui/material";
+import { Favorite, Folder, LocationOn, Restore } from "@mui/icons-material";
 
 function App() {
   dotenv.config();
@@ -96,8 +98,26 @@ function App() {
         />
       </Routes>
       <LoginModal visible={visible} onHide={showModal} />
+      {/* <BottomNavigation sx={{ width: 500 }} value={"recents"} onChange={() => { }}>
+        <BottomNavigationAction
+          label="Recents"
+          value="recents"
+          icon={<Restore />}
+        />
+        <BottomNavigationAction
+          label="Favorites"
+          value="favorites"
+          icon={<Favorite />}
+        />
+        <BottomNavigationAction
+          label="Nearby"
+          value="nearby"
+          icon={<LocationOn />}
+        />
+      </BottomNavigation> */}
       <Footer />
     </>
+
   );
 }
 

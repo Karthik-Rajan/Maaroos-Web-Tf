@@ -9,11 +9,6 @@ import { useLocation } from "react-router-dom";
 import { FETCH_VENDOR_REQUEST, LOCATION, SET_LOCATION } from "../constants/vendor";
 import { vendorList } from "../actions/api";
 
-let input = {};
-
-let location = {};
-let reload = 0;
-
 function List(props: any) {
   const dispatch = useDispatch();
 
@@ -23,7 +18,7 @@ function List(props: any) {
 
   const callVendorList = async () => {
     dispatch({ type: FETCH_VENDOR_REQUEST })
-    vendorList(search).then((res) => {
+    vendorList(search).then((res: any) => {
       dispatch({ type: LOCATION, payload: { list: res, loading: false } }
       )
     }
@@ -32,9 +27,6 @@ function List(props: any) {
 
   useEffect(() => {
     callVendorList();
-  }, [])
-
-  useEffect(() => {
   }, [])
 
   const onApplyFilter = async () => {

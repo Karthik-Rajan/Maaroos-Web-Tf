@@ -1,6 +1,6 @@
 import React from 'react';
-import {Image,Badge,Button,Media} from 'react-bootstrap';
-import PropTypes from 'prop-types'; 
+import { Image, Badge, Button, Media } from 'react-bootstrap';
+import PropTypes from 'prop-types';
 import Icofont from 'react-icofont';
 
 class QuickBite extends React.Component {
@@ -9,34 +9,34 @@ class QuickBite extends React.Component {
     this.state = {
       quantity: this.props.qty || 0,
       show: this.props.show || true,
-      max:this.props.maxValue || 5,
-      min:this.props.minValue || 0
+      max: this.props.maxValue || 5,
+      min: this.props.minValue || 0
     };
   }
 
   IncrementItem = () => {
-    if(this.state.quantity >= this.state.max) {
+    if (this.state.quantity >= this.state.max) {
 
-    }else {
-        this.setState({
-            quantity: this.state.quantity + 1 
-        });
-      this.props.getValue({id:this.props.id,quantity: (this.state.quantity + 1 )});
+    } else {
+      this.setState({
+        quantity: this.state.quantity + 1
+      });
+      this.props.getValue({ id: this.props.id, quantity: (this.state.quantity + 1) });
     }
   }
   DecreaseItem = () => {
-    if(this.state.quantity <= (this.state.min)) {
+    if (this.state.quantity <= (this.state.min)) {
 
-    }else {
+    } else {
       this.setState({ quantity: this.state.quantity - 1 });
-      this.props.getValue({id:this.props.id,quantity: (this.state.quantity - 1 )});
+      this.props.getValue({ id: this.props.id, quantity: (this.state.quantity - 1) });
     }
   }
 
   render() {
-      return (
-      	<div className={"p-3 border-bottom "+this.props.itemClass}>
-		   {this.state.quantity===0?
+    return (
+      <div className={"p-3 border-bottom " + this.props.itemClass}>
+        {/* {this.state.quantity===0?
 	            <span className="float-right"> 
 	              <Button variant='outline-secondary' onClick={this.IncrementItem} size="sm">ADD</Button>
 	            </span>
@@ -46,26 +46,26 @@ class QuickBite extends React.Component {
 	               <input className="count-number-input" type="text" value={this.state.quantity} readOnly/>
 	               <Button variant="outline-secondary" onClick={this.IncrementItem} className="btn-sm right inc"> <Icofont icon="icofont-plus" /> </Button>
 	            </span>
-	         }
-		   <Media>
-		      {this.props.image?
-		      	<Image className={"mr-3 rounded-pill " +this.props.imageClass} src={this.props.image} alt={this.props.imageAlt} />
-		      	:
-		      	<div className="mr-3"><Icofont icon="ui-press" className={"text-"+this.props.badgeVariant+" food-item"} /></div>
-		      }
-		      <Media.Body>
-		         <h6 className="mb-1">{this.props.title} {this.props.showBadge?<Badge variant={this.props.badgeVariant}>{this.props.badgeText}</Badge>:""}</h6>
-		         <p className="text-gray mb-0">{this.props.priceUnit}{this.props.price}</p>
-		      </Media.Body>
-		   </Media>
-		</div>
+	         } */}
+        <Media>
+          {this.props.image ?
+            <Image className={"mr-3 rounded-pill " + this.props.imageClass} src={this.props.image} alt={this.props.imageAlt} />
+            :
+            <div className="mr-3"><Icofont icon="ui-press" className={"text-" + this.props.badgeVariant + " food-item"} /></div>
+          }
+          <Media.Body>
+            <h6 className="mb-1">{this.props.title} {this.props.showBadge ? <Badge variant={this.props.badgeVariant}>{this.props.badgeText}</Badge> : ""}</h6>
+            <p className="text-gray mb-0">{this.props.priceUnit}{this.props.price}</p>
+          </Media.Body>
+        </Media>
+      </div>
     );
   }
 }
 
 
 QuickBite.propTypes = {
-  itemClass:PropTypes.string,
+  itemClass: PropTypes.string,
   title: PropTypes.string.isRequired,
   imageAlt: PropTypes.string,
   image: PropTypes.string,
@@ -82,12 +82,12 @@ QuickBite.propTypes = {
   getValue: PropTypes.func.isRequired
 };
 QuickBite.defaultProps = {
-  itemClass:'gold-members',
-  imageAlt:'',
-  imageClass:'',
+  itemClass: 'gold-members',
+  imageAlt: '',
+  imageClass: '',
   showBadge: false,
   price: '',
-  priceUnit:'$',
+  priceUnit: '$',
   showPromoted: false,
   badgeVariant: 'danger'
 }

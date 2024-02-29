@@ -5,18 +5,27 @@ import {
   refreshAuth,
   methodProps,
   guestHeaders,
+  authHeadersWithMultiPart,
 } from "../constants/apis";
 
-export const vendorList = async (payload: any) => {
+export const vendorList: any = async (payload: any, retry: boolean = true) => {
   return await fetch(BASE_URL + FETCH, {
     ...methodProps("POST", { ...payload }),
-    ...guestHeaders,
+    ...authHeaders(),
   })
     .then((res) => {
       return res.json();
     })
     .then((data) => {
       return data;
+    })
+    .catch(async (err: any) => {
+      /** Retry Authentication */
+      if (retry) {
+        await refreshAuth();
+        return await vendorList(payload, false);
+      }
+      console.log("User Login Err", err);
     });
 };
 
@@ -52,7 +61,6 @@ export const userProfileUpdate: any = async (
   idToken: string = ''
 ) => {
   let userData = {};
-  const response = { type: "USER_PROFILE_UPDATE", userData };
   await fetch(BASE_URL + ME, {
     ...authHeaders(idToken),
     ...methodProps("PUT", payload),
@@ -60,9 +68,7 @@ export const userProfileUpdate: any = async (
     .then((res: any) => {
       return res.json();
     })
-    .then((data: any) => {
-      return { ...response };
-    })
+    .then((data: any) => data)
     .catch(async (err: any) => {
       /** Retry Authentication */
       if (retry) {
@@ -73,8 +79,8 @@ export const userProfileUpdate: any = async (
     });
 }
 
-export const vendorDetail = async ({ vId }: any) => {
-  return await fetch(BASE_URL + DETAIL + vId, {
+export const vendorDetail = async ({ vId, userId }: any) => {
+  return await fetch(BASE_URL + DETAIL + vId + `?userId=` + userId, {
     ...methodProps("GET"),
     ...guestHeaders,
   })
@@ -188,7 +194,7 @@ export const rz_WalletEntry: any = async ({ amount, retry = true }: any) => {
   return await data
 };
 
-export const rechargeWallet = (props: any) => {
+export const rechargeWallet = async (props: any) => {
   fetch(BASE_URL + ME + `/wallet/recharge`, {
     ...methodProps("POST", { ...props }),
     ...authHeaders(),
@@ -201,5 +207,26 @@ export const rechargeWallet = (props: any) => {
     })
     .catch(async (err) => {
 
+    });
+}
+
+export const walletStatements: any = async (retry: boolean = true) => {
+  return await fetch(BASE_URL + ME + `/wallet/statements`, {
+    ...methodProps("GET"),
+    ...authHeaders(),
+  })
+    .then((res) => {
+      return res.json();
+    })
+    .then((data) => {
+      return data;
+    })
+    .catch(async (err) => {
+      /** Retry Authentication */
+      if (err.code == 401 && retry) {
+        await refreshAuth();
+        return await walletStatements(false);
+      }
+      console.log("User Login Err", err);
     });
 }

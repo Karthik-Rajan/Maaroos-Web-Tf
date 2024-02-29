@@ -1,4 +1,4 @@
-import { CREATE_WALLET_RECHARGE_RESPONSE, FETCH_PROFILE_REQUEST, FETCH_PROFILE_RESPONSE, UPDATE_PROFILE_REQUEST, WALLET_ENTRY_REQUEST, WALLET_ENTRY_RESPONSE } from "../constants/user";
+import { CREATE_WALLET_RECHARGE_RESPONSE, FETCH_PROFILE_REQUEST, FETCH_PROFILE_RESPONSE, UPDATE_PROFILE_REQUEST, UPDATE_PROFILE_RESPONSE, WALLET_ENTRY_REQUEST, WALLET_ENTRY_RESPONSE, WALLET_STATEMENT_RESPONSE } from "../constants/user";
 
 const initialState = {
   profile: {
@@ -6,11 +6,8 @@ const initialState = {
     error: null,
     data: {}
   },
-  wallet: {
-    loading: false,
-    error: null,
-    data: {}
-  }
+  wallet: {},
+  statements: []
 };
 const userReducer = (state = initialState, action: any) => {
   switch (action.type) {
@@ -24,7 +21,8 @@ const userReducer = (state = initialState, action: any) => {
       return { ...state, wallet: { ...state.wallet, loading: false, data: action.payload } }
     case CREATE_WALLET_RECHARGE_RESPONSE:
       return { ...state }
-
+    case WALLET_STATEMENT_RESPONSE:
+      return { ...state, ...action.payload }
     default:
       return state;
   }

@@ -69,7 +69,7 @@ const Review = (props: any) => {
 };
 
 Review.propTypes = {
-  key: PropTypes.number,
+  // key: PropTypes.number,
   image: PropTypes.string,
   ImageAlt: PropTypes.string,
   ratingStars: PropTypes.number.isRequired,

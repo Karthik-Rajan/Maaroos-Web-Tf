@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
-import { NavLink, Link, BrowserRouter, Routes, Route } from "react-router-dom";
-import { Row, Col, Container, Image } from "react-bootstrap";
+import { NavLink, Route } from "react-router-dom";
+import { Row, Col, Container } from "react-bootstrap";
 import Offers from "./myaccount/Offers";
 import Orders from "./myaccount/Orders";
 import Favourites from "./myaccount/Favourites";
@@ -9,39 +9,26 @@ import Addresses from "./myaccount/Addresses";
 import EditProfileModal from "./modals/EditProfileModal";
 import Auth from "@aws-amplify/auth";
 import TrackOrder from "./TrackOrder";
-import { connect, useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import Calendar from "./common/Calendar";
-import { useForm, SubmitHandler } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { UPDATED } from "../ErrorConstants";
-import { Avatar } from "@mui/material";
-import { stringAvatar } from "../helpers/utils";
 import Wallet from "./myaccount/Wallet";
-import { rz_WalletEntry, userProfile } from "../actions/api";
+import { rz_WalletEntry, userProfile, userProfileUpdate } from "../actions/api";
 import { FETCH_PROFILE_REQUEST, FETCH_PROFILE_RESPONSE, WALLET_ENTRY_REQUEST, WALLET_ENTRY_RESPONSE } from "../constants/user";
-let reload = 0;
-const MyAccount = (props: any) => {
-  const { user, vendor } = props;
+import AWS from 'aws-sdk';
+import { ProfileInfo } from "./myaccount/ProfileInfo";
+
+const MyAccount = () => {
   const [showEditProfile, setShowEditProfile] = useState(false);
   const [page, setPage] = useState("orders");
   const profileFormRef = useRef();
   const [info, setInfo] = useState("");
-  const [authUser, setAuthUser] = useState(null);
   const [order, setOrder] = useState({})
 
   const { profile, wallet } = useSelector((state: any) => state.user);
   const users = profile.data;
   const dispatch = useDispatch();
-
-  const verifyAuth = () => {
-    Auth.currentAuthenticatedUser()
-      .then((user) => {
-        setAuthUser(user);
-      })
-      .catch((err) => {
-        console.error(err);
-        window.location.href = "/";
-      });
-  };
 
   const {
     register,
@@ -49,26 +36,22 @@ const MyAccount = (props: any) => {
     formState: { errors },
   } = useForm();
 
-  useEffect(() => {
-    getProfile()
-  }, [dispatch]);
-
   const getProfile = async () => {
     dispatch({ type: FETCH_PROFILE_REQUEST, payload: {} });
     userProfile().then((res: any) => dispatch({ type: FETCH_PROFILE_RESPONSE, payload: res }));
   };
 
-
   const updateProfile = async (firstName: string, lastName: string, emailId: string) => {
-    await dispatch({ type: "USER_PROFILE_UPDATE", payload: { firstName, lastName, emailId } });
-    await Auth.currentAuthenticatedUser()
-      .then((user) => {
-        Auth.updateUserAttributes(user, { name: firstName, middle_name: lastName }).then(res => console.log("attr", res));
-      })
-      .catch((err) => {
-        console.error(err);
-        window.location.href = "/";
-      });
+    await userProfileUpdate({ firstName, lastName, emailId }).then(() => {
+      Auth.currentAuthenticatedUser()
+        .then((user) => {
+          Auth.updateUserAttributes(user, { name: firstName, middle_name: lastName }).then(res => console.log("attr", res));
+        })
+        .catch((err) => {
+          console.error(err);
+          window.location.href = "/";
+        });
+    });
   };
 
   const onProfileUpdate = async (data: any) => {
@@ -76,7 +59,6 @@ const MyAccount = (props: any) => {
     await updateProfile(firstName, lastName, emailId);
     await getProfile();
     setInfo(UPDATED)
-    reload++;
   };
 
   const createWalletEntry = async (amount: number) => {
@@ -84,6 +66,42 @@ const MyAccount = (props: any) => {
     await rz_WalletEntry({ amount }).then(async (res: any) => {
       await dispatch({ type: WALLET_ENTRY_RESPONSE, payload: res });
     })
+  }
+
+  const uploadProfilePic = async (file: any) => {
+    const ext = file.type.toLowerCase().includes('png') ? '.png' : '.jpg';
+    const profileImg = 'https://maaroos-assets.s3.ap-south-1.amazonaws.com/';
+    const filePath = 'profile_images/' + btoa(users.mobile) + ext;
+    const S3_BUCKET = "maaroos-assets";
+    const REGION = "ap-south-1";
+
+    AWS.config.update({
+      accessKeyId: "AKIAZCGGSBO7IEGVZGOA",
+      secretAccessKey: "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",
+    });
+    const s3 = new AWS.S3({
+      params: { Bucket: S3_BUCKET },
+      region: REGION,
+    });
+
+    const params = {
+      Bucket: S3_BUCKET,
+      Key: filePath,
+      Body: file,
+    };
+
+    var upload = s3
+      .putObject(params)
+      .on("httpUploadProgress", (evt) => {
+
+      })
+      .promise();
+
+    await upload.then((res: any) => {
+      userProfileUpdate({ profileImg: profileImg + filePath }).then(() => {
+        getProfile();
+      })
+    });
   }
 
   const pathMap: any = {
@@ -97,7 +115,6 @@ const MyAccount = (props: any) => {
     '/myaccount': 'wallet'
   }
   useEffect(() => {
-    verifyAuth();
     setPage(pathMap[window.location.pathname]);
   }, []);
 
@@ -115,47 +132,18 @@ const MyAccount = (props: any) => {
         info={info}
         setInfo={setInfo}
       />
-      <section className="section pt-4 pb-4 osahan-account-page">
+      <section className="section pt-5 pb-5 osahan-account-page">
         <Container>
           <Row>
             <Col md={3}>
               <div className="osahan-account-page-left shadow-sm bg-white h-100">
-                <div className="border-bottom p-4">
-                  <div className="osahan-user text-center">
-                    <div className="osahan-user-media">
-                      {/* <Image
-                        className="mb-3 rounded-pill shadow-sm mt-1"
-                        src="/img/user/4.png"
-                        alt={(users?.first_name || `NoName`) +
-                          " " +
-                          (users?.second_name || `Noname`)}
-                      /> */}
-                      <div className="nameAvatar">
-                        <Avatar {...stringAvatar(users ? users?.first_name + ' ' + users?.second_name : `?`)} />
-                      </div>
-                      <div className="osahan-user-media-body">
-                        <h6 className="mb-2">
-                          {users ? users?.first_name + ' ' + users?.second_name : `NoName NoName`}
-                        </h6>
-                        <p className="mb-1">{users?.mobile}</p>
-                        <p>{users?.email || "No email address configured"}</p>
-                        <p className="mb-0 text-black font-weight-bold">
-                          <Link
-                            to="#"
-                            onClick={() => setShowEditProfile(true)}
-                            className="text-primary mr-3"
-                          >
-                            <i className="icofont-ui-edit"></i> EDIT
-                          </Link>
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+
+                <ProfileInfo setShowEditProfile={setShowEditProfile} uploadProfilePic={uploadProfilePic} />
+
                 <ul className="nav flex-column border-0 pt-4 pl-4 pb-4 noPadding">
                   <li className="nav-item">
                     <NavLink
-                      className="nav-link"
+                      className="nav-link active"
                       to="wallet"
                       onClick={() => setPage("wallet")}
                     >
@@ -235,42 +223,37 @@ const MyAccount = (props: any) => {
               {page === "payments" && <Payments />}
               {page === "addresses" && <Addresses />}
               {page === "track-order" && <TrackOrder />}
-              {page === "wallet" && users && <Wallet createWalletEntry={createWalletEntry} order={order} />}
-              {page === "myCalendar" && <div className='p-4 bg-white shadow-sm'><Calendar
-                vendorDetail={vendor}
-                setSection={false}
-                setFromDate={false}
-                setToDate={false}
-                dispatch={dispatch}
-                vId={`all`}
-              /></div>}
+              {page === "wallet" && users && <Wallet getProfile={getProfile} createWalletEntry={createWalletEntry} />}
+              {page === "myCalendar" && <div className='p-4 bg-white shadow-sm'>
+                <Calendar
+                  setSection={false}
+                  setFromDate={false}
+                  setToDate={false}
+                  dispatch={dispatch}
+                  vId={`all`}
+                /></div>}
 
               {/* <Switch>
-                <Route path="/myaccount/orders" exact component={Orders} />
-                <Route path="/myaccount/offers" exact component={Offers} />
+                <Route path="/myaccount/orders"><Orders /></Route>
+                <Route path="/myaccount/offers" component={Offers} />
                 <Route
                   path="/myaccount/favourites"
-                  exact
+
                   component={Favourites}
                 />
-                <Route path="/myaccount/payments" exact component={Payments} />
+                <Route path="/myaccount/payments" component={Payments} />
                 <Route
                   path="/myaccount/addresses"
-                  exact
+
                   component={Addresses}
                 />
               </Switch> */}
             </Col>
           </Row>
         </Container>
-      </section>
+      </section >
     </>
   );
 };
 
-function mapStateToProps(state: any) {
-  return {
-    ...state,
-  };
-}
-export default connect(mapStateToProps)(MyAccount);
+export default MyAccount

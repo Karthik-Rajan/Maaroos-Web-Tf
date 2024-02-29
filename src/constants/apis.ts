@@ -8,11 +8,28 @@ export const guestHeaders = {
   },
 };
 
+export const guestHeadersMultiPart = {
+  headers: {
+    Accept: "application/json",
+    "Content-Type": 'multipart/form-data',
+  },
+};
+
 export const authHeaders = (idToken: string = "") => {
   return {
     headers: {
       ...guestHeaders.headers,
-      Authorization: `${`Bearer ` + !idToken ? localStorage.getItem("userIdToken") : idToken
+      Authorization: `${`Bearer ` + (idToken ? idToken : (localStorage.getItem("userIdToken") ? localStorage.getItem("userIdToken") : ""))
+        }`,
+    },
+  };
+};
+
+export const authHeadersWithMultiPart = (idToken: string = "") => {
+  return {
+    headers: {
+      ...guestHeadersMultiPart.headers,
+      Authorization: `${`Bearer ` + (idToken ? idToken : (localStorage.getItem("userIdToken") ? localStorage.getItem("userIdToken") : ""))
         }`,
     },
   };
@@ -31,8 +48,13 @@ export const methodProps = (method: string, input?: any) => {
       };
     case "PUT":
       return {
-        method : "PUT",
+        method: "PUT",
         body: JSON.stringify(input)
+      }
+    case "PUT_FORM":
+      return {
+        method: "PUT",
+        body: input
       }
     default:
       return {

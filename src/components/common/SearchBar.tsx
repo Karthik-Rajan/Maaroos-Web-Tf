@@ -154,7 +154,7 @@ const SearchBar = (props: any) => {
         onSubmit={handleSubmit(onSubmit)}
       >
         <div className={'form-row'}>
-          {quickSearch && (
+          {/* {quickSearch && (
             <Form.Group className="col-lg-3 col-md-3 col-sm-12">
               <div className="location-dropdown">
                 <Icofont icon="location-arrow" />
@@ -173,7 +173,7 @@ const SearchBar = (props: any) => {
                 />
               </div>
             </Form.Group>
-          )}
+          )} */}
           <Form.Group
             className={
               props.filterSearch

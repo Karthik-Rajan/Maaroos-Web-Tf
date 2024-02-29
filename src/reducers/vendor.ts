@@ -1,4 +1,3 @@
-import { vendorList, vendorDetail, fetchMySchedule, addSchedule, addReview, fetchReview } from "../actions/api";
 import { ADD_CALENDAR_REQUEST, ADD_CALENDAR_RESPONSE, ADD_REVIEW_ERROR, ADD_REVIEW_REQUEST, FETCH_DETAIL_REQUEST, FETCH_DETAIL_RESPONSE, FETCH_MY_CALENDAR_RESPONSE, FETCH_REVIEW_RESPONSE, FETCH_VENDOR_REQUEST, LOCATION, SET_LOCATION } from "../constants/vendor";
 
 const commonState = {
@@ -44,12 +43,11 @@ const reducer = (state = initialState, action: any) => {
     case FETCH_DETAIL_RESPONSE:
     case FETCH_MY_CALENDAR_RESPONSE:
     case FETCH_REVIEW_RESPONSE:
+    case ADD_CALENDAR_RESPONSE:
     case ADD_REVIEW_REQUEST:
       return {
         ...state, loading: false, ...action.payload
       }
-    case ADD_CALENDAR_RESPONSE:
-      return addSchedule({ ...action.payload }).then((res: any) => res);
     default:
       return state;
   }

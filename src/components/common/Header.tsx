@@ -8,21 +8,26 @@ import {
   Image,
   Alert,
 } from "react-bootstrap";
-import DropDownTitle from "./DropDownTitle";
+import { DropDownTitle } from "./DropDownTitle";
 import Icofont from "react-icofont";
 import Auth from "@aws-amplify/auth";
 import SearchBar from "./SearchBar";
+import { userProfile } from "../../actions/api";
+import { useDispatch, useSelector } from "react-redux";
+import { FETCH_PROFILE_RESPONSE } from "../../constants/user";
 
 
 function Header(props: any) {
-  // Amplify.configure(awsConfig);
   const [user, setUser] = useState(null);
   const [notification, setNotification] = useState(false);
   const [isNavExpanded, setIsNavExpanded] = useState(false);
+  const dispatch = useDispatch()
+  const { profile } = useSelector((s: any) => s.user);
+  const userData = profile.data
 
   useEffect(() => {
     Auth.currentUserInfo().then((res) => {
-      console.log(res);
+      userProfile().then((res: any) => dispatch({ type: FETCH_PROFILE_RESPONSE, payload: res }));
       setUser(res);
     });
   }, []);
@@ -49,7 +54,7 @@ function Header(props: any) {
           expanded={isNavExpanded}
           color="light"
           expand="lg"
-          className="navbar-light osahan-nav shadow-sm"
+          className="navbar-light osahan-nav shadow-sm navBarFixed"
         >
           <Container>
             <Navbar.Brand to="/">
@@ -113,7 +118,7 @@ function Header(props: any) {
                         // imageAlt="user"
                         imageClass="nav-osahan-pic rounded-pill"
                         title="My Account"
-                        user={user}
+                        user={userData}
                       />
                     }
                   >
@@ -406,7 +411,7 @@ function Header(props: any) {
             </Navbar.Collapse>
           </Container>
         </Navbar>
-        
+
       </div>
       {notification ? (
         <Alert
