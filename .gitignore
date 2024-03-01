@@ -22,3 +22,6 @@ build/
 node_modules/
 .secret-*
 package-lock.json
+
+.terraform/*
+.terraform*
